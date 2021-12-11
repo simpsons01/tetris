@@ -1,31 +1,20 @@
-import { CubeRenderDirection } from "./enum";
+import { CubeRenderShape } from "./enum";
 
 export interface ICubePosition {
   x: number
   y: number
 }
 
-export type ICubePositionList = [ICubePosition, ICubePosition, ICubePosition, ICubePosition]
+export type ICubePositionList =  Array<ICubePosition>
 
-export interface ICubePositionConifg {
-  [CubeRenderDirection.Up]: ICubePositionList
-  [CubeRenderDirection.Down]: ICubePositionList
-  [CubeRenderDirection.Left]: ICubePositionList
-  [CubeRenderDirection.Right]: ICubePositionList
+export interface ICubeShapeConifg {
+  [CubeRenderShape.First]: ICubePositionList
+  [CubeRenderShape.Second]: ICubePositionList
+  [CubeRenderShape.Third]: ICubePositionList
+  [CubeRenderShape.Forth]: ICubePositionList
 }
 
 export interface ICubeRenderConfg {
-  x: number
-  y: number
-  strokeColor?: string
-  fillColor?: string,
-  direction?: CubeRenderDirection
+  strokeColor: string
+  fillColor: string
 }
-
-export interface IBasCube {
-  context: undefined | CanvasRenderingContext2D 
-  positionConfig: undefined | ICubePositionConifg
-
-  render(renderConfig: ICubeRenderConfg): void
-}
-

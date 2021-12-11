@@ -1,88 +1,45 @@
-import { IBasCube, ICubePosition, ICubePositionConifg, ICubeRenderConfg } from "./types" 
-import { CubeRenderDirection } from "./enum";
+import { ICubePosition, ICubeShapeConifg, ICubeRenderConfg, ICubePositionList } from "./types" 
+import {  CubeRenderShape, Canvas, CubeDistance } from "./enum";
 
-class BaseCube implements IBasCube {
-  positionConfig: ICubePositionConifg
+export class BaseCube {
+  shapeConfig: ICubeShapeConifg
   context: CanvasRenderingContext2D
-
-  static Basic = {
-    CubeNumber: 4,
-    CubeWidth: 30,
-    CubeHeight: 30,
-    CubeDistance: 30
-  }
+  strokeColor: string
+  fillColor: string
+  currentPosition: ICubePosition = { x: (Canvas.Width / CubeDistance) / 2 , y: 0 }
+  currentPositionList: ICubePositionList
+  currentShape: CubeRenderShape = CubeRenderShape.First
 
   constructor(
-    positionConfig: ICubePositionConifg,
-    context: CanvasRenderingContext2D,
+    shapeConfig: ICubeShapeConifg,
     renderConfig: ICubeRenderConfg
   ) {
-    this.context = context
-    this.positionConfig = positionConfig
-    this.render(renderConfig)
+    this.shapeConfig = shapeConfig
+    this.strokeColor = renderConfig.strokeColor
+    this.fillColor = renderConfig.fillColor
+    this.currentPositionList = this.shapeConfig[this.currentShape]
   }
 
-  render(renderConfig: ICubeRenderConfg) {
+  updatePosition(position: ICubePosition): ICubePositionList {
     const { 
       x, 
-      y, 
-      strokeColor = "#fff", 
-      fillColor = "#fff", 
-      direction = CubeRenderDirection.Up 
-    } = renderConfig
+      y 
+    } = position
+    this.currentPosition = { x, y }
+    this.currentPositionList = this.shapeConfig[this.currentShape].map(shape => ({
+      x: x + shape.x,
+      y: y + shape.y
+    }))
+    return this.currentPositionList
+  }
 
-    for (let i = 0; i < BaseCube.Basic.CubeNumber; i += 1) {
-      const _x = x + this.positionConfig[direction][i].x * BaseCube.Basic.CubeDistance
-      const _y = y + this.positionConfig[direction][i].y * BaseCube.Basic.CubeDistance
-      this.context.fillStyle = fillColor
-      this.context.strokeStyle = strokeColor
-      this.context.beginPath();
-      this.context.moveTo(_x, _y);
-      this.context.lineTo(_x + BaseCube.Basic.CubeWidth, _y);
-      this.context.lineTo(_x + BaseCube.Basic.CubeWidth, _y + BaseCube.Basic.CubeHeight);
-      this.context.lineTo(_x, _y + BaseCube.Basic.CubeHeight);
-      this.context.closePath();
-      this.context.stroke();
-      this.context.fill()
-    }
-  }  
-}
+  changeShape(shape: CubeRenderShape): ICubePositionList {
+    this.currentShape = shape
+    this.updatePosition(this.currentPosition)
+    return this.currentPositionList
+  }
 
-class A1 extends BaseCube {
-
-  constructor(context: CanvasRenderingContext2D, renderConfig: ICubeRenderConfg) {
-    super(
-      { 
-        [CubeRenderDirection.Up]: [
-          { x: 0, y: 0 },
-          { x: 0, y: -1 },
-          { x: 1, y: 0 },
-          { x: 2, y: 0 }
-        ],
-        [CubeRenderDirection.Down]: [  
-          { x: 0, y: 0 },
-          { x: 0, y: -1 },
-          { x: 1, y: 0 },
-          { x: 2, y: 0 }
-        ],
-        [CubeRenderDirection.Left]: [
-          { x: 0, y: 0 },
-          { x: 0, y: -1 },
-          { x: 1, y: 0 },
-          { x: 2, y: 0 }
-        ],
-        [CubeRenderDirection.Right]: [
-          { x: 0, y: 0 },
-          { x: 0, y: -1 },
-          { x: 1, y: 0 },
-          { x: 2, y: 0 }
-        ]
-      },
-      context,
-      renderConfig
-    )
+  getInfo(): Array<{ x: number, y: number, strokeColor: string, fillColor: string }> {
+    return this.currentPositionList.map(position => ({ ...position, strokeColor: this.strokeColor, fillColor: this.fillColor }))
   }
 }
-
-
-
