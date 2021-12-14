@@ -21,3 +21,9 @@ export enum Canvas {
   Width = 300,
   Height = 600
 }
+
+
+export enum BlockState {
+  Unfilled,
+  Filled
+}

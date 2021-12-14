@@ -1,17 +1,17 @@
 import { CubeRenderShape } from "./enum";
 
-export interface ICubePosition {
+export interface ICubeCoordinate {
   x: number
   y: number
 }
 
-export type ICubePositionList =  Array<ICubePosition>
+export type ICubeCoordinateList =  Array<ICubeCoordinate>
 
 export interface ICubeShapeConifg {
-  [CubeRenderShape.First]: ICubePositionList
-  [CubeRenderShape.Second]: ICubePositionList
-  [CubeRenderShape.Third]: ICubePositionList
-  [CubeRenderShape.Forth]: ICubePositionList
+  [CubeRenderShape.First]: ICubeCoordinateList
+  [CubeRenderShape.Second]: ICubeCoordinateList
+  [CubeRenderShape.Third]: ICubeCoordinateList
+  [CubeRenderShape.Forth]: ICubeCoordinateList
 }
 
 export interface ICubeRenderConfg {

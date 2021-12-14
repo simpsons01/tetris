@@ -8,7 +8,7 @@ class Tertis {
        
   }
 
-  updateCubePosition() {
+  updateCubeCoordinate() {
      
   }
 }
