@@ -1,22 +1,22 @@
-import { BaseCube } from "./cube";
-import { BlockState, Cube, Canvas, CubeDistance, Move } from "./enum";
-import { IBlock, ICubeCoordinate, ICubeCoordinateInfo, ICubeMove } from "./types";
+import { BasePolyomino } from "./polyomino";
+import { BlockState, Canvas, BlcokDistance, Direction } from "./enum";
+import { IBlock, ICoordinate, IPolyominoCoordinate, IDirection } from "./types";
 import { getKeys } from "./utils";
 
 let nextTimer: number | null = null, 
    nextCountDownTimer: number | null = null,
    fallTimer: number | null = null
 
-const row = Canvas.Width / CubeDistance
-const column = Canvas.Height/ CubeDistance
+const row = Canvas.Width / BlcokDistance
+const column = Canvas.Height/ BlcokDistance
 
 class Main {
   isPending: boolean
   context: CanvasRenderingContext2D
-  cube: null | BaseCube
-  blocks: Array<Array<IBlock>> = (
-    new Array(column).fill(null).map((rowNoop, columnIndex) => {
-      return new Array(row).fill(null).map((colNoop, rowIndex) => {
+  polyomino: null | BasePolyomino
+  tertis: Array<Array<IBlock>> = (
+    new Array(column).fill(null).map((rowNull, columnIndex) => {
+      return new Array(row).fill(null).map((colNull, rowIndex) => {
         return {
           x: rowIndex,
           y: columnIndex,
@@ -28,39 +28,44 @@ class Main {
     })
   )
 
-  constructor(context: CanvasRenderingContext2D) {
-    this.init(context)
+  constructor() {
+    this.init()
   }
 
-  init = (context: CanvasRenderingContext2D) => {
-    this.context = context
-    this.next()
+  init = () => {
+    const canvas = document.querySelector("canvas")
+    if(!canvas) {
+      throw new Error("canvas is not exist!")
+    }else {        
+      this.context = document.querySelector("canvas").getContext("2d")
+      this.next()
+    }
   }
 
   draw = () => {
     this.context.clearRect(0, 0, Canvas.Width, Canvas.Height)
-    this.blocks.forEach(row => {
+    this.tertis.forEach(row => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
         let _x, _y, _strokeColor, _fillColor
         if(state === BlockState.Filled) {
-          _x = x * CubeDistance
-          _y = y * CubeDistance
+          _x = x * BlcokDistance
+          _y = y * BlcokDistance
           _strokeColor = strokeColor
           _fillColor = fillColor
         }else if(
-          x === this.cube.coordinate.x &&
-          y === this.cube.coordinate.y                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+          x === this.polyomino.coordinate.x &&
+          y === this.polyomino.coordinate.y                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
         ) {
-          _x = this.cube.coordinate.x * CubeDistance
-          _y = this.cube.coordinate.y * CubeDistance
-          _strokeColor = this.cube.strokeColor
-          _fillColor = this.cube.fillColor
+          _x = this.polyomino.coordinate.x * BlcokDistance
+          _y = this.polyomino.coordinate.y * BlcokDistance
+          _strokeColor = this.polyomino.strokeColor
+          _fillColor = this.polyomino.fillColor
         }
         this.context.strokeStyle = strokeColor
         this.context.fillStyle = fillColor
         this.context.save()
-        this.context.fillRect(_x, _y, CubeDistance - 1, CubeDistance - 1)
-        this.context.strokeRect(_x, _y, CubeDistance, CubeDistance)
+        this.context.fillRect(_x, _y, BlcokDistance - 1, BlcokDistance - 1)
+        this.context.strokeRect(_x, _y, BlcokDistance, BlcokDistance)
         this.context.restore()
       })
     })
@@ -68,7 +73,7 @@ class Main {
 
   createAutoFall() {
     fallTimer = window.setInterval(() => {
-      this.moveCubeDown()
+      this.movePolyominoDown()
     }, 1000)
   }
 
@@ -76,8 +81,8 @@ class Main {
     !!fallTimer && window.clearInterval(fallTimer)
   }
 
-  moveCubeLeft = () => {
-    const isMoveSuccess = this.moveCube(Move.Left)
+  movePolyominoLeft = () => {
+    const isMoveSuccess = this.movePolyomino(Direction.Left)
     if(!isMoveSuccess) { 
       if(this.isPending) {
         nextTimer = window.setTimeout(() => {
@@ -91,8 +96,8 @@ class Main {
     return isMoveSuccess
   }
   
-  moveCubeRight = () => {
-    const isMoveSuccess = this.moveCube(Move.Right)
+  movePolyominoRight = () => {
+    const isMoveSuccess = this.movePolyomino(Direction.Right)
     if(!isMoveSuccess) { 
       if(this.isPending) {
         nextTimer = window.setTimeout(() => {
@@ -106,12 +111,11 @@ class Main {
     return isMoveSuccess
   }
 
-  moveCubeDown = () => {
-    const isMoveSuccess = this.moveCube(Move.Down)
+  movePolyominoDown = () => {
+    const isMoveSuccess = this.movePolyomino(Direction.Down)
     if(!isMoveSuccess) { 
       if(!this.isPending) {
         this.isPending = true
-        // create timer
         nextCountDownTimer = window.setTimeout(() => {
           this.beforeNext()
           if(nextTimer) window.clearTimeout(nextTimer)
@@ -131,17 +135,19 @@ class Main {
   
   beforeNext = () => {
     this.closeAutoFall()
-    const cubeInfo = this.cube.getInfo()
-    cubeInfo.forEach(({ x, y, strokeColor, fillColor }) => {
-      const row = this.blocks[y]
+    const polyominoInfo = this.polyomino.getInfo()
+    polyominoInfo.forEach(({ x, y, strokeColor, fillColor }) => {
+      const row = this.tertis[y]
       const index = row.findIndex(({ x: _x }) => _x === x)
       if(index > -1) {
-        row[index] = { x, y, strokeColor, fillColor, state: BlockState.Filled }
+        row[index].strokeColor = strokeColor
+        row[index].fillColor = fillColor
+        row[index].state = BlockState.Filled
       }
     })
-    this.blocks.forEach(row => {
-      const isFilled = row.every(({ state }) => state === BlockState.Filled)
-      if(isFilled) {
+    this.tertis.forEach(row => {
+      const isAllFilled = row.every(({ state }) => state === BlockState.Filled)
+      if(isAllFilled) {
         row.forEach(({ strokeColor, fillColor }, index) => {
           row[index].strokeColor = strokeColor
           row[index].fillColor = fillColor
@@ -152,12 +158,12 @@ class Main {
     this.draw()
     // mock animation
     setTimeout(() => {
-      this.cube = null
-      this.blocks.forEach((row, rowIndex) => {
-        const lastRow = this.blocks[rowIndex - 1]
-        const isUnFilled = row.every(({ state }) => state === BlockState.Unfilled)
-        if(isUnFilled && !!lastRow) {
-          row.forEach((cube, index) => {
+      this.polyomino = null
+      this.tertis.forEach((row, rowIndex) => {
+        const lastRow = this.tertis[rowIndex - 1]
+        const isAllUnFilled = row.every(({ state }) => state === BlockState.Unfilled)
+        if(isAllUnFilled && !!lastRow) {
+          row.forEach((block, index) => {
             row[index].strokeColor = lastRow[index].strokeColor
             row[index].fillColor = lastRow[index].fillColor
             row[index].state = BlockState.Filled
@@ -170,27 +176,27 @@ class Main {
   }
 
   next = () => {
-    // this.cube.createCube()
+    // this.polyomino.creat  polyomino()
     this.createAutoFall()
   }
 
-  checkCollide = (cubeCoordinateInfo: ICubeCoordinateInfo): ICubeMove<boolean> => {
-    const status: ICubeMove<boolean> = { left: false, right: false, bottom: false }
+  checkCollide = (polyominoCoordinateInfo: IPolyominoCoordinate): IDirection<boolean> => {
+    const status: IDirection<boolean> = { left: false, right: false, bottom: false }
     const range = (() => {
       let start = 0, end = 0
-      cubeCoordinateInfo.forEach(coordinate => {
+      polyominoCoordinateInfo.forEach(coordinate => {
         if(coordinate.y < start) start = coordinate.y
         if(coordinate.y > end) end = coordinate.y
       })
       return { start, end }
     })()
-    const blocks = this.blocks.slice(range.start, range.end + 1).reduce((acc, row) => [...acc, ...row], [])
-    const nearbyCoordinateInfo: Array<ICubeMove<ICubeCoordinate>> = cubeCoordinateInfo.reduce((acc, coordinate) => {
-        const _x = coordinate.x * CubeDistance, _y = coordinate.y * CubeDistance
+    const blocks = this.tertis.slice(range.start, range.end + 1)
+    const nearbyCoordinateInfo: Array<IDirection<ICoordinate>> =  polyominoCoordinateInfo.reduce((acc, coordinate) => {
+        const _x = coordinate.x * BlcokDistance, _y = coordinate.y * BlcokDistance
         return [...acc, {
-          left: {x: _x - CubeDistance, y: _y },
-          right:{ x: _x + CubeDistance, y: _y },
-          bottom: { x: _x, y: _y + CubeDistance }
+          left: {x: _x - BlcokDistance, y: _y },
+          right:{ x: _x + BlcokDistance, y: _y },
+          bottom: { x: _x, y: _y + BlcokDistance }
         }]
     }, [])
     nearbyCoordinateInfo.forEach(coordinateInfo => {
@@ -218,27 +224,27 @@ class Main {
     return status
   }
 
-  moveCube = (direction: Move) => {
+  movePolyomino = (direction: Direction) => {
     let isMoveSuccess = false, _x = 0, _y = 0
     const { 
       left: isLeftCollide, right: isRightCollide, bottom: isBottomCollide 
-    } = this.checkCollide(this.cube.cubeCoordinateInfo);    
+    } = this.checkCollide(this.polyomino.coordinate);    
     ({
-     [Move.Left]: () => {
-       _x = isLeftCollide ? CubeDistance * -1 : 0
+     [Direction.Left]: () => {
+       _x = isLeftCollide ? BlcokDistance * -1 : 0
        isMoveSuccess = isLeftCollide
      },
-     [Move.Right]: () => {
-       _x = isRightCollide ? CubeDistance * -1 : 0
+     [Direction.Right]: () => {
+       _x = isRightCollide ? BlcokDistance * -1 : 0
        isMoveSuccess = isRightCollide
      },
-     [Move.Down]: () => {
-      _y = isBottomCollide ? 0 : CubeDistance
+     [Direction.Down]: () => {
+      _y = isBottomCollide ? 0 : BlcokDistance
       isMoveSuccess = isBottomCollide
      }
     })[direction]()
     if(isMoveSuccess) {
-      this.cube.updateCoordinate({ x: _x, y: _y })
+      this.polyomino.updateCoordinate({ x: _x, y: _y })
       this.draw()
     } 
   

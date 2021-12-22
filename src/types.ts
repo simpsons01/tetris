@@ -1,34 +1,37 @@
-import { CubeRenderShape, BlockState } from "./enum";
+import { PolyominoShape, BlockState } from "./enum";
 
-export interface ICubeCoordinate {
+export interface ICoordinate {
   x: number
   y: number
 }
 
-export type ICubeCoordinateInfo =  Array<ICubeCoordinate>
+export type IPolyominoCoordinate = [
+  ICoordinate, 
+  ICoordinate, 
+  ICoordinate, 
+  ICoordinate
+]
 
-export interface ICubeShapeConifg {
-  [CubeRenderShape.First]: ICubeCoordinateInfo
-  [CubeRenderShape.Second]: ICubeCoordinateInfo
-  [CubeRenderShape.Third]: ICubeCoordinateInfo
-  [CubeRenderShape.Forth]: ICubeCoordinateInfo
+export interface IPolyominoConfig {
+  [PolyominoShape.First]: IPolyominoCoordinate
+  [PolyominoShape.Second]: IPolyominoCoordinate
+  [PolyominoShape.Third]: IPolyominoCoordinate
+  [PolyominoShape.Forth]: IPolyominoCoordinate
 }
 
-export interface ICubeRenderConfg extends ICubeCoordinate {
+export interface IPolyominoBlock extends ICoordinate {
   strokeColor: string 
   fillColor: string
 }
 
-export interface ICubeMove<T = any> {
+export interface IDirection<T = any> {
   left: T
   right: T
   bottom: T
 }
 
-export interface IBlock {
+export interface IBlock extends ICoordinate {
   strokeColor: string
   fillColor: string
   state: BlockState
-  x: number
-  y: number
 }

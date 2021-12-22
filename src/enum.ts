@@ -1,11 +1,11 @@
-export enum CubeRenderShape {
+export enum PolyominoShape {
   First = 'first',
   Second = 'second',
   Third = 'third',
   Forth = 'forth'
 }
 
-export enum Cube {
+export enum PolyominoType {
   I,
   J,
   L,
@@ -15,19 +15,18 @@ export enum Cube {
   Z
 }
 
-export enum Move {
+export enum Direction {
   Left = 'left',
   Right = 'right',
   Down = 'down'
 }
 
-export const CubeDistance = 10
+export const BlcokDistance = 10
 
 export enum Canvas {
   Width = 300,
   Height = 600
 }
-
 
 export enum BlockState {
   Unfilled,
