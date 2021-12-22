@@ -1,4 +1,4 @@
-import { ICubeCoordinate, ICubeShapeConifg, ICubeRenderConfg, ICubeCoordinateList } from "./types" 
+import { ICubeCoordinate, ICubeShapeConifg, ICubeRenderConfg, ICubeCoordinateInfo } from "./types" 
 import {  CubeRenderShape, Canvas, CubeDistance } from "./enum";
 
 export class BaseCube {
@@ -7,7 +7,7 @@ export class BaseCube {
   strokeColor: string
   fillColor: string
   coordinate: ICubeCoordinate = { x: (Canvas.Width / CubeDistance) / 2 , y: 0 }
-  cubeCoordinateInfo: ICubeCoordinateList
+  cubeCoordinateInfo: ICubeCoordinateInfo
   currentShape: CubeRenderShape = CubeRenderShape.First
 
   constructor(
@@ -31,7 +31,7 @@ export class BaseCube {
     }))
   }
 
-  updateCoordinate(Coordinate: ICubeCoordinate): ICubeCoordinateList {
+  updateCoordinate(Coordinate: ICubeCoordinate): ICubeCoordinateInfo {
     const { 
       x, 
       y 
@@ -41,13 +41,17 @@ export class BaseCube {
     return this.cubeCoordinateInfo
   }
 
-  changeShape(shape: CubeRenderShape): ICubeCoordinateList {
+  changeShape(shape: CubeRenderShape): ICubeCoordinateInfo {
     this.currentShape = shape
     this.updateCoordinate(this.coordinate)
     return this.cubeCoordinateInfo
   }
 
   getInfo(): Array<{ x: number, y: number, strokeColor: string, fillColor: string }> {
-    return this.cubeCoordinateInfo.map(coordinate => ({ ...coordinate, strokeColor: this.strokeColor, fillColor: this.fillColor }))
+    return this.cubeCoordinateInfo.map(coordinate => ({ 
+      ...coordinate, 
+      strokeColor: this.strokeColor, 
+      fillColor: this.fillColor 
+    }))
   }
 }

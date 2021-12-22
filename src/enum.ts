@@ -15,6 +15,12 @@ export enum Cube {
   Z
 }
 
+export enum Move {
+  Left = 'left',
+  Right = 'right',
+  Down = 'down'
+}
+
 export const CubeDistance = 10
 
 export enum Canvas {
