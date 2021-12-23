@@ -1,12 +1,26 @@
 export const useInterval = function(
-  cb: Function, 
-  intervalTime: number = 3000, 
+  action: Function, 
+  interval: number = 3000, 
+  count: number = 1,
+  immediate: boolean = false,
   ...args: Array<any>
-): Function {
-  let timer = setInterval(() => {
-    cb.apply(null, args)
-  }, intervalTime)
-  return () => clearInterval(timer)
+): Promise<void> {
+  let timer: number, times: number = 0
+  const excute = () => {
+    action.apply(null, args)
+    times += 1
+  }
+  return new Promise(resolve => {
+    if(immediate) excute()
+    if(times >= count) resolve()
+    timer = window.setInterval(() => {
+      excute()
+      if(times >= count) {
+        window.clearInterval(timer)
+        resolve()
+      }
+    }, interval)
+  })
 }
 
 export const getKeys = function<U extends object, T extends keyof U>(obj: U): Array<T> {
