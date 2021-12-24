@@ -2,7 +2,6 @@ import { BasePolyomino } from "./polyomino";
 import { BlockState, Canvas, BlcokDistance, Direction } from "./enum";
 import { IBlock, ICoordinate, IPolyominoCoordinate, IDirection } from "./types";
 import { getKeys, useInterval } from "./utils";
-import { stat } from "fs";
 
 let nextTimer: number | null = null, 
    nextCountDownTimer: number | null = null,
@@ -11,11 +10,12 @@ let nextTimer: number | null = null,
 const rowNum = Canvas.Width / BlcokDistance
 const columnNum = Canvas.Height/ BlcokDistance
 
-class Main {
+class Teris {
+  // polyominoFactory: 
   isPending: boolean
   context: CanvasRenderingContext2D
   polyomino: null | BasePolyomino
-  tertis: Array<Array<IBlock>> = (
+  data: Array<Array<IBlock>> = (
     new Array(columnNum).fill(null).map((rowNull, columnIndex) => {
       return new Array(rowNum).fill(null).map((colNull, rowIndex) => {
         return {
@@ -43,10 +43,89 @@ class Main {
     }
   }
 
+  clearFilledRow = () => {
+    let orderIndex = 0
+    const order = [
+      [5, 6],
+      [4, 7],
+      [3, 8],
+      [2, 9],
+      [1, 10]
+    ]
+    const filledRowInedxList = this.data.reduce((acc: Array<number>, row, index) => {
+      const isAllFilled = row.every(({ state }) => state === BlockState.Filled)
+      if(isAllFilled) acc.push(index)
+      return acc
+    }, [])
+    return new Promise(resolve => {
+      useInterval(() => {
+        filledRowInedxList.forEach(rowIndex => {
+          const unFilledList = order[orderIndex]
+          unFilledList.forEach(unFilledIndex => {
+            this.data[rowIndex][unFilledIndex].state = BlockState.Unfilled
+          })
+        })
+        this.draw()
+        orderIndex += 1
+      }, 250, order.length - 1, true).then(() => {
+        // @ts-ignore
+        resolve()
+      })
+    })
+  }
+
+  startAutoFall = () => {
+    fallTimer = window.setInterval(() => {
+      this.movePolyominoDown()
+    }, 1000)
+  }
+
+  closeAutoFall = () => {
+    !!fallTimer && window.clearInterval(fallTimer)
+  }
+
+  startCountDownTimer = () => {
+    nextCountDownTimer = window.setTimeout(() => {
+      this.closeCountDownTimer()
+      this.closeNextTimer()
+      this.beforeNext().then(() => {
+        this.next()
+      })
+    }, 3000)
+  }
+
+  closeCountDownTimer = () => {
+    if(nextCountDownTimer) {
+      window.clearTimeout(nextCountDownTimer)
+      nextCountDownTimer = null
+    }
+  }
+
+  startNextTimer = () => {
+    nextTimer = window.setTimeout(() => {
+      this.closeCountDownTimer()
+      this.closeNextTimer()
+      this.beforeNext().then(() => {
+        this.next()
+      })
+    }, 1000)
+  }
+
+  closeNextTimer = () => {
+    if(nextTimer) {
+      window.clearTimeout(nextTimer)
+      nextTimer = null
+    }
+  }
+
+  resetPolyomino = () => {
+    this.polyomino = null
+  }
+
   draw = () => {
     this.context.clearRect(0, 0, Canvas.Width, Canvas.Height)
     const polyominoBlockInfo = this.polyomino.getInfo()
-    this.tertis.forEach(row => {
+    this.data.forEach(row => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
         let _x, _y, _strokeColor, _fillColor, polyominoBlock
         polyominoBlock = polyominoBlockInfo.find(polyominoBlock => {
@@ -75,57 +154,55 @@ class Main {
       })
     })
   }
-
-  clear = (rowIndexList: Array<number>) => {
-    let orderIndex = 0
-    const order = [
-      [5, 6],
-      [4, 7],
-      [3, 8],
-      [2, 9],
-      [1, 10]
-    ]
+  
+  fillEmptyRow = () => {
     return new Promise(resolve => {
-      useInterval(() => {
-        rowIndexList.forEach(rowIndex => {
-          const unFilledList = order[orderIndex]
-          unFilledList.forEach(unFilledIndex => {
-            this.tertis[rowIndex][unFilledIndex].state = BlockState.Unfilled
-          })
-        })
-        this.draw()
-        orderIndex += 1
-      }, 250, 4, true).then(() => {
+      const data = (() => {
+        let current = 0
+        return this.data.reduce((acc, row, rowIndex) => {
+          const isRowUnFilled = row.every(({ state }) => state === BlockState.Unfilled)
+          const isLasRowUnFilled = (this.data[rowIndex + 1] || []).every(({ state }) => state === BlockState.Unfilled)
+          if(!isLasRowUnFilled && isRowUnFilled) {
+            current += 1
+          }
+          const field = isRowUnFilled ? "unFilled" : "notAllFilled"
+          acc[current][field].push(rowIndex)
+          return acc
+        }, [{ unFilled: [], notAllFilled: [] }])
+      })()
+      if(
+        data.length === 1 && 
+        Math.min(...data[0].notAllFilled) > Math.max(...data[0].unFilled)
+      ) {
         // @ts-ignore
         resolve()
-      })
+      }else {
+        const executeTimes = 4
+        resolve(
+          useInterval(() => {
+            data.forEach(({ unFilled, notAllFilled }) => {
+              const from = Math.max(...notAllFilled)
+              const to = Math.max(...unFilled)
+              const add = (to - from) / executeTimes
+              notAllFilled.forEach(rowIndex => {
+                this.data[rowIndex].forEach(block => block.y = block.y + add)
+              })
+            })
+            this.draw()
+          }, 50, executeTimes, true)
+          .then(() => {
+            return this.fillEmptyRow()
+          })
+        )
+      }
     })
-  }
-
-  xxx = () => {
-    
-  }
-
-  createAutoFall() {
-    fallTimer = window.setInterval(() => {
-      this.movePolyominoDown()
-    }, 1000)
-  }
-
-  closeAutoFall() {
-    !!fallTimer && window.clearInterval(fallTimer)
   }
 
   movePolyominoLeft = () => {
     const isMoveSuccess = this.movePolyomino(Direction.Left)
     if(!isMoveSuccess) { 
       if(this.isPending) {
-        nextTimer = window.setTimeout(() => {
-          this.beforeNext()
-          if(nextCountDownTimer) window.clearTimeout(nextCountDownTimer)
-          nextTimer = null
-          nextCountDownTimer = null
-        }, 1000)
+        this.startNextTimer()
       }
     }
     return isMoveSuccess
@@ -135,12 +212,7 @@ class Main {
     const isMoveSuccess = this.movePolyomino(Direction.Right)
     if(!isMoveSuccess) { 
       if(this.isPending) {
-        nextTimer = window.setTimeout(() => {
-          this.beforeNext()
-          if(nextCountDownTimer) window.clearTimeout(nextCountDownTimer)
-          nextTimer = null
-          nextCountDownTimer = null
-        }, 1000)
+        this.startNextTimer()
       }
     }
     return isMoveSuccess
@@ -150,53 +222,14 @@ class Main {
     const isMoveSuccess = this.movePolyomino(Direction.Down)
     if(!isMoveSuccess) { 
       this.closeAutoFall()
-      if(!this.isPending) {
+      if(this.isPending) {
+        this.startCountDownTimer()
+        this.startNextTimer()
+      }else {
         this.isPending = true
-        nextCountDownTimer = window.setTimeout(() => {
-          this.beforeNext()
-          if(nextTimer) window.clearTimeout(nextTimer)
-          nextTimer = null
-          nextCountDownTimer = null
-        }, 3000)
-        nextTimer = window.setTimeout(() => {
-          this.beforeNext()
-          if(nextCountDownTimer) window.clearTimeout(nextCountDownTimer)
-          nextTimer = null
-          nextCountDownTimer = null
-        }, 1000)
       }
     }
     return isMoveSuccess
-  }
-
-  resetPolyomino = () => {
-    this.polyomino = null
-  }
-
-  getFilledRow = () => {
-    return this.tertis.reduce((acc: Array<number>, row, index) => {
-      const isAllFilled = row.every(({ state }) => state === BlockState.Filled)
-      if(isAllFilled) acc.push(index)
-      return acc
-    }, [])
-  }
-
-  clearBlock = () => {
-    return new Promise(resolve => {
-      this.tertis.forEach(row => {
-        const isAllFilled = row.every(({ state }) => state === BlockState.Filled)
-        if(isAllFilled) {
-          row.forEach(({ strokeColor, fillColor }, index) => {
-            row[index].strokeColor = strokeColor
-            row[index].fillColor = fillColor
-            row[index].state = BlockState.Unfilled
-          })
-        }
-      })
-      this.draw()
-      // @ts-ignore
-      resolve()
-    })
   }
   
   beforeNext = () => {
@@ -204,7 +237,7 @@ class Main {
       const polyominoBlockInfo = this.polyomino.getInfo()
       this.resetPolyomino()
       polyominoBlockInfo.forEach(({ x, y, strokeColor, fillColor }) => {
-        const row = this.tertis[y]
+        const row = this.data[y]
         const index = row.findIndex(({ x: _x }) => _x === x)
         if(index > -1) {
           row[index].strokeColor = strokeColor
@@ -212,24 +245,20 @@ class Main {
           row[index].state = BlockState.Filled
         }
       })
-      const filledRowInedxList = this.getFilledRow()
+      const filledRowInedxList = this.data.reduce((acc: Array<number>, row, index) => {
+        const isAllFilled = row.every(({ state }) => state === BlockState.Filled)
+        if(isAllFilled) acc.push(index)
+        return acc
+      }, [])
       if(filledRowInedxList.length > 0) {
-        this.clear(filledRowInedxList).then(() => {
-          this.tertis.forEach((row, rowIndex) => {
-            const lastRow = this.tertis[rowIndex - 1]
-            const isAllUnFilled = row.every(({ state }) => state === BlockState.Unfilled)
-            if(isAllUnFilled && !!lastRow) {
-              row.forEach((block, index) => {
-                row[index].strokeColor = lastRow[index].strokeColor
-                row[index].fillColor = lastRow[index].fillColor
-                row[index].state = lastRow[index].state
-              })
-            }
+        this.clearFilledRow()
+         .then(() => {
+           return this.fillEmptyRow()
+         })
+         .then(() => {
+            // @ts-ignore
+            resolve()
           })
-          this.draw()
-          // @ts-ignore
-          resolve()
-        })
       }else {
         // @ts-ignore
         resolve()
@@ -239,7 +268,7 @@ class Main {
 
   next = () => {
     // this.polyomino.creat  polyomino()
-    this.createAutoFall()
+    this.startAutoFall()
   }
 
   checkPolyominoCollide = (polyominoCoordinate: IPolyominoCoordinate): IDirection<boolean> => {
@@ -263,7 +292,7 @@ class Main {
           status[direction] = true
         }
         if(!status[direction]) {
-          const row = this.tertis[naerByBlock.y]
+          const row = this.data[naerByBlock.y]
           if(!!row) {
             const block = row.find(block => {
               return block.x === naerByBlock.x && block.y === naerByBlock.y
