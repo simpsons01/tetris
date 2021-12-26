@@ -1,7 +1,7 @@
-import { BasePolyomino } from "./polyomino";
-import { BlockState, Canvas, BlcokDistance, Direction } from "./enum";
-import { IBlock, ICoordinate, IPolyominoCoordinate, IDirection } from "./types";
-import { getKeys, useInterval } from "./utils";
+import { BasePolyomino, PolyominoFactory } from "../polyomino";
+import { BlockState, Canvas, BlcokDistance, Direction } from "../../enum";
+import { IBlock, ICoordinate, IPolyominoCoordinate, IDirection } from "../../types";
+import { getKeys, useInterval } from "../../utils";
 
 let nextTimer: number | null = null, 
    nextCountDownTimer: number | null = null,
@@ -10,9 +10,9 @@ let nextTimer: number | null = null,
 const rowNum = Canvas.Width / BlcokDistance
 const columnNum = Canvas.Height/ BlcokDistance
 
-class Teris {
-  // polyominoFactory: 
+export class Tertis {
   isPending: boolean
+  polyominoFactory: PolyominoFactory
   context: CanvasRenderingContext2D
   polyomino: null | BasePolyomino
   data: Array<Array<IBlock>> = (
@@ -38,6 +38,7 @@ class Teris {
     if(!canvas) {
       throw new Error("canvas is not exist!")
     }else {        
+      this.polyominoFactory = new PolyominoFactory()
       this.context = canvas.getContext("2d")
       this.next()
     }
@@ -267,11 +268,11 @@ class Teris {
   }
 
   next = () => {
-    // this.polyomino.creat  polyomino()
+    this.polyomino = this.polyominoFactory.create()
     this.startAutoFall()
   }
 
-  checkPolyominoCollide = (polyominoCoordinate: IPolyominoCoordinate): IDirection<boolean> => {
+  checkPolyominoCollide = (polyominoCoordinate: IPolyominoCoordinate['coordinate']): IDirection<boolean> => {
     const status: IDirection<boolean> = { left: false, right: false, bottom: false }
     const nearbyBlockCoordinate: Array<IDirection<ICoordinate>> = polyominoCoordinate.reduce((acc, coordinate) => {
         const _x = coordinate.x, _y = coordinate.y

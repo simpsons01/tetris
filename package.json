@@ -10,8 +10,7 @@
     "build.esnext": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir dist --extensions \".ts,.tsx\" --source-maps inline",
-    "build.all": "npm run build.prod && npm run build.esnext",
-    "test": "karma start karma.config.js"
+    "build.all": "npm run build.prod && npm run build.esnext"
   },
   "keywords": [
     "webpack",

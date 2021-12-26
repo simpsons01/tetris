@@ -5,24 +5,29 @@ export interface ICoordinate {
   y: number
 }
 
-export type IPolyominoCoordinate = [
-  ICoordinate, 
-  ICoordinate, 
-  ICoordinate, 
-  ICoordinate
-]
+export interface IRender {
+  strokeColor: string,
+  fillColor: string
+}
 
-export interface IPolyominoConfig {
+export interface IPolyominoCoordinate {
+  anchorIndex: number
+  coordinate: [
+    ICoordinate, 
+    ICoordinate, 
+    ICoordinate, 
+    ICoordinate
+  ]
+}
+
+export interface IPolyominoCoordinateConfig {
   [PolyominoShape.First]: IPolyominoCoordinate
   [PolyominoShape.Second]: IPolyominoCoordinate
   [PolyominoShape.Third]: IPolyominoCoordinate
   [PolyominoShape.Forth]: IPolyominoCoordinate
 }
 
-export interface IPolyominoBlock extends ICoordinate {
-  strokeColor: string 
-  fillColor: string
-}
+export interface IPolyominoBlock extends ICoordinate, IRender {}
 
 export interface IDirection<T = any> {
   left: T
@@ -30,8 +35,6 @@ export interface IDirection<T = any> {
   bottom: T
 }
 
-export interface IBlock extends ICoordinate {
-  strokeColor: string
-  fillColor: string
+export interface IBlock extends ICoordinate, IRender {
   state: BlockState
 }
