@@ -1,4 +1,4 @@
-import { Tertis } from "./component/tertis";
+import { Tertis } from "./component/tertis/index";
 
 (function() {
   const tertis = new Tertis()
