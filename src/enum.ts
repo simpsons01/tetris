@@ -21,11 +21,11 @@ export enum Direction {
   Down = 'down'
 }
 
-export const BlcokDistance = 10
+export const BlcokDistance = 60
 
 export enum Canvas {
-  Width = 300,
-  Height = 600
+  Width = 600,
+  Height = 1200
 }
 
 export enum BlockState {

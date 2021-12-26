@@ -128,7 +128,7 @@ export class Tertis {
     const polyominoBlockInfo = this.polyomino.getInfo()
     this.data.forEach(row => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
-        let _x, _y, _strokeColor, _fillColor, polyominoBlock
+        let _x, _y, _strokeColor, _fillColor, polyominoBlock, isFilled = false
         polyominoBlock = polyominoBlockInfo.find(polyominoBlock => {
           return (
             polyominoBlock.x === x &&
@@ -140,18 +140,22 @@ export class Tertis {
           _y = y * BlcokDistance
           _strokeColor = strokeColor
           _fillColor = fillColor
+          isFilled = true
         }else if(!!polyominoBlock) {
           _x = polyominoBlock.x * BlcokDistance
           _y = polyominoBlock.y * BlcokDistance
           _strokeColor = polyominoBlock.strokeColor
           _fillColor = polyominoBlock.fillColor
+          isFilled = true
         }
-        this.context.strokeStyle = _strokeColor
-        this.context.fillStyle = _fillColor
-        this.context.save()
-        this.context.fillRect(_x, _y, BlcokDistance - 1, BlcokDistance - 1)
-        this.context.strokeRect(_x, _y, BlcokDistance, BlcokDistance)
-        this.context.restore()
+        if(isFilled) {
+          this.context.strokeStyle = _strokeColor
+          this.context.fillStyle = _fillColor
+          this.context.save()
+          this.context.fillRect(_x, _y, BlcokDistance - 1, BlcokDistance - 1)
+          this.context.strokeRect(_x, _y, BlcokDistance, BlcokDistance)
+          this.context.restore()
+        }
       })
     })
   }

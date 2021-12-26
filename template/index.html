@@ -2,15 +2,39 @@
 <head>
  <style>
     body {
+      background-color: #292929;
+    }
+
+    #canvas-container {
+      margin: 30px auto;
+      width: 600px;
+      height: 1200px;
+      position: relative;
       display: flex;
-      justify-content: center;
-      align-items: center;
+      flex-wrap: wrap;
+      border: 1px solid #D3D3D3;
+    }
+
+    #canvas-container .block {
+      width: 58px;
+      height: 58px;
+      border: 1px solid #D3D3D3;
+      background-color: 	#696969;
+    }
+
+    #canvas-container canvas {
+      position: absolute;
+      width: 600px;
+      height: 1200px;
+      left: 0;
+      top: 0;
+      z-index: 1;
     }
  </style>
 </head>
 <body>
-    <div id="app">
-        <canvas width="300" height="600"></canvas>
+    <div id="canvas-container">
+       <canvas></canvas>
     </div>
 </body>
 </html>
