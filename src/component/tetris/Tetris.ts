@@ -107,7 +107,7 @@ export class Tetris {
 
   draw = () => {
     this.context.clearRect(0, 0, Canvas.Width, Canvas.Height)
-    const polyominoBlockInfo = !!this.polyomino ? null : this.polyomino.getInfo()
+    const polyominoBlockInfo = !this.polyomino ? null : this.polyomino.getInfo()
     this.data.forEach(row => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
         let _strokeColor, _fillColor, polyominoBlock
@@ -129,7 +129,7 @@ export class Tetris {
         this.context.strokeStyle = _strokeColor
         this.context.fillStyle = _fillColor
         this.context.save()
-        this.context.fillRect(x * BlcokDistance, y * BlcokDistance, BlcokDistance - 1, BlcokDistance - 1)
+        this.context.fillRect(x * BlcokDistance, y * BlcokDistance, BlcokDistance - 2, BlcokDistance - 2)
         this.context.strokeRect(x * BlcokDistance, y * BlcokDistance, BlcokDistance, BlcokDistance)
         this.context.restore()
       })

@@ -1,5 +1,4 @@
 import { Tetris } from "./component/tetris/index";
-import { Canvas, BlcokDistance } from "./enum";
 
 (function() {
   const tetris = new Tetris()
@@ -7,13 +6,18 @@ import { Canvas, BlcokDistance } from "./enum";
   tetris.draw()
   window.addEventListener("keydown", function(e) {
     if(e.keyCode === 37) {
+      console.log('on keyleft press')
       tetris.movePolyominoLeft()
+
     }else if(e.keyCode === 39) {
+      console.log('on keyRight press')
       tetris.movePolyominoRight()
+
     }else if(e.keyCode === 40) {
+      console.log('on keyDown press')
       tetris.movePolyominoDown()
     }
   })
   // @ts-ignore
-  window.t = tertis
+  window.t = tetris
 })()
