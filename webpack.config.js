@@ -1,58 +1,40 @@
-const path = require('path');
-const webpack = require('webpack');
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const ROOT = path.resolve( __dirname, 'src' );
-const DESTINATION = path.resolve( __dirname, 'dist' );
+const ROOT = path.resolve(__dirname, "src");
+const DESTINATION = path.resolve(__dirname, "dist");
+const TEMPLATE = path.join(__dirname, "template/index.html")
 
 module.exports = {
-    context: ROOT,
+  context: ROOT,
 
-    entry: {
-        'main': './main.ts'
-    },
-    
-    output: {
-        filename: '[name].bundle.js',
-        path: DESTINATION
-    },
+  entry: {
+    main: "./main.ts",
+  },
 
-    resolve: {
-        extensions: ['.ts', '.js'],
-        modules: [
-            ROOT,
-            'node_modules'
-        ]
-    },
+  output: {
+    filename: "[name].bundle.js",
+    path: DESTINATION,
+  },
 
-    module: {
-        rules: [
-            /****************
-            * PRE-LOADERS
-            *****************/
-            {
-                enforce: 'pre',
-                test: /\.js$/,
-                use: 'source-map-loader'
-            },
-            {
-                enforce: 'pre',
-                test: /\.ts$/,
-                exclude: /node_modules/,
-                use: 'tslint-loader'
-            },
+  resolve: {
+    // Add `.ts` and `.tsx` as a resolvable extension.
+    extensions: [".ts", ".tsx", ".js"]
+  },
 
-            /****************
-            * LOADERS
-            *****************/
-            {
-                test: /\.ts$/,
-                exclude: [ /node_modules/ ],
-                use: 'awesome-typescript-loader'
-            }
-        ]
-    },
-
-    devtool: 'cheap-module-source-map',
-    devServer: {}
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        exclude: [/node_modules/],
+        use: "ts-loader",
+      },
+    ],
+  },
+  devServer: {},
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: TEMPLATE,
+    }),
+  ],
 };
-
