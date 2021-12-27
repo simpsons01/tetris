@@ -21,8 +21,8 @@ export class Tertis {
         return {
           x: rowIndex,
           y: columnIndex,
-          strokeColor: '#696969',
-          fillColor: '#C0C0C0',
+          strokeColor: "#D3D3D3",
+          fillColor: "#696969",
           state: BlockState.Unfilled
         }
       })
@@ -40,39 +40,7 @@ export class Tertis {
     }else {        
       this.polyominoFactory = new PolyominoFactory()
       this.context = canvas.getContext("2d")
-      this.next()
     }
-  }
-
-  clearFilledRow = () => {
-    let orderIndex = 0
-    const order = [
-      [5, 6],
-      [4, 7],
-      [3, 8],
-      [2, 9],
-      [1, 10]
-    ]
-    const filledRowInedxList = this.data.reduce((acc: Array<number>, row, index) => {
-      const isAllFilled = row.every(({ state }) => state === BlockState.Filled)
-      if(isAllFilled) acc.push(index)
-      return acc
-    }, [])
-    return new Promise(resolve => {
-      useInterval(() => {
-        filledRowInedxList.forEach(rowIndex => {
-          const unFilledList = order[orderIndex]
-          unFilledList.forEach(unFilledIndex => {
-            this.data[rowIndex][unFilledIndex].state = BlockState.Unfilled
-          })
-        })
-        this.draw()
-        orderIndex += 1
-      }, 250, order.length - 1, true).then(() => {
-        // @ts-ignore
-        resolve()
-      })
-    })
   }
 
   startAutoFall = () => {
@@ -123,39 +91,75 @@ export class Tertis {
     this.polyomino = null
   }
 
+  createPolyomino = () => {
+    if(!this.polyomino) {
+      this.polyomino = this.polyominoFactory.create()
+      const { 
+        range: { minX, maxX, minY }, 
+        anchor: { y: anchorY } 
+      } = this.polyomino
+      this.polyomino.updateCoordinate({
+        x: Math.ceil((rowNum - (maxX - minX + 1)) / 2) - minX,
+        y: anchorY - minY
+      })
+    }
+  }
+
   draw = () => {
     this.context.clearRect(0, 0, Canvas.Width, Canvas.Height)
     const polyominoBlockInfo = this.polyomino.getInfo()
     this.data.forEach(row => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
-        let _x, _y, _strokeColor, _fillColor, polyominoBlock, isFilled = false
+        let _strokeColor, _fillColor, polyominoBlock
         polyominoBlock = polyominoBlockInfo.find(polyominoBlock => {
           return (
             polyominoBlock.x === x &&
             polyominoBlock.y === y
           )
         })
-        if(state === BlockState.Filled) {
-          _x = x * BlcokDistance
-          _y = y * BlcokDistance
-          _strokeColor = strokeColor
-          _fillColor = fillColor
-          isFilled = true
-        }else if(!!polyominoBlock) {
-          _x = polyominoBlock.x * BlcokDistance
-          _y = polyominoBlock.y * BlcokDistance
+        if(!!polyominoBlock) {
           _strokeColor = polyominoBlock.strokeColor
           _fillColor = polyominoBlock.fillColor
-          isFilled = true
+        }else {
+          _strokeColor = strokeColor
+          _fillColor = fillColor
         }
-        if(isFilled) {
-          this.context.strokeStyle = _strokeColor
-          this.context.fillStyle = _fillColor
-          this.context.save()
-          this.context.fillRect(_x, _y, BlcokDistance - 1, BlcokDistance - 1)
-          this.context.strokeRect(_x, _y, BlcokDistance, BlcokDistance)
-          this.context.restore()
-        }
+        this.context.strokeStyle = _strokeColor
+        this.context.fillStyle = _fillColor
+        this.context.save()
+        this.context.fillRect(x * BlcokDistance, y * BlcokDistance, BlcokDistance - 1, BlcokDistance - 1)
+        this.context.strokeRect(x * BlcokDistance, y * BlcokDistance, BlcokDistance, BlcokDistance)
+        this.context.restore()
+      })
+    })
+  }
+
+  clearFilledRow = () => {
+    let orderIndex = 0
+    const order = [
+      [5, 6],
+      [4, 7],
+      [3, 8],
+      [2, 9],
+      [1, 10]
+    ]
+    const filledRowInedxList = this.data.reduce((acc: Array<number>, row, index) => {
+      const isAllFilled = row.every(({ state }) => state === BlockState.Filled)
+      if(isAllFilled) acc.push(index)
+      return acc
+    }, [])
+    return new Promise(resolve => {
+      useInterval(() => {
+        filledRowInedxList.forEach(rowIndex => {
+          order[orderIndex].forEach(unFilledIndex => {
+            this.data[rowIndex][unFilledIndex].state = BlockState.Unfilled
+          })
+        })
+        this.draw()
+        orderIndex += 1
+      }, 250, order.length - 1, true).then(() => {
+        // @ts-ignore
+        resolve()
       })
     })
   }
@@ -272,7 +276,7 @@ export class Tertis {
   }
 
   next = () => {
-    this.polyomino = this.polyominoFactory.create()
+    this.createPolyomino()
     this.startAutoFall()
   }
 
@@ -316,19 +320,19 @@ export class Tertis {
     let isMoveSuccess = false, _x = 0, _y = 0
     const { 
       left: isLeftCollide, right: isRightCollide, bottom: isBottomCollide 
-    } = this.checkPolyominoCollide(this.polyomino.coordinate);    
+    } = this.checkPolyominoCollide(this.polyomino.coordinate);
     ({
      [Direction.Left]: () => {
-       _x = isLeftCollide ? -1 : 0
-       isMoveSuccess = isLeftCollide
+       _x = isLeftCollide ? 0 : -1
+       isMoveSuccess = !isLeftCollide
      },
      [Direction.Right]: () => {
-       _x = isRightCollide ? -1 : 0
-       isMoveSuccess = isRightCollide
+       _x = isRightCollide ? 0 : 1
+       isMoveSuccess = !isRightCollide
      },
      [Direction.Down]: () => {
-      _y = isBottomCollide ? 0 : BlcokDistance
-      isMoveSuccess = isBottomCollide
+      _y = isBottomCollide ? 0 : 1
+      isMoveSuccess = !isBottomCollide
      }
     })[direction]()
     if(isMoveSuccess) {

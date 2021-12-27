@@ -15,17 +15,28 @@ export class BasePolyomino {
     this.coordinateConfig = coordinateConfig
     this.strokeColor = renderConfig.strokeColor
     this.fillColor = renderConfig.fillColor
-    this.coordinate = this.coordinateConfig[this.shape].coordinate
+    this.coordinate = JSON.parse(JSON.stringify(this.coordinateConfig[this.shape].coordinate))
   }
 
   get anchor() {
     return this.coordinate[this.coordinateConfig[this.shape].anchorIndex]
   }
 
+  get range() {
+   const _x = this.coordinate.map(({ x }) => x)
+   const _y = this.coordinate.map(({ y }) => y)
+   return {
+     maxX: Math.max(..._x),
+     minX: Math.min(..._x),
+     maxY: Math.max(..._y),
+     minY: Math.min(..._y),
+   }
+  }
+
   updateCoordinate = (coordinate: ICoordinate) => {
     this.coordinateConfig[this.shape].coordinate.forEach(({ x, y }, index) => {
       this.coordinate[index].x = x + coordinate.x
-      this.coordinate[index].x = y + coordinate.y
+      this.coordinate[index].y = y + coordinate.y
     })
     return this.coordinate
   }
