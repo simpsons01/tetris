@@ -10,7 +10,7 @@ let nextTimer: number | null = null,
 const rowNum = Canvas.Width / BlcokDistance
 const columnNum = Canvas.Height/ BlcokDistance
 
-export class Tertis {
+export class Tetris {
   isPending: boolean
   polyominoFactory: PolyominoFactory
   context: CanvasRenderingContext2D
@@ -107,16 +107,18 @@ export class Tertis {
 
   draw = () => {
     this.context.clearRect(0, 0, Canvas.Width, Canvas.Height)
-    const polyominoBlockInfo = this.polyomino.getInfo()
+    const polyominoBlockInfo = !!this.polyomino ? null : this.polyomino.getInfo()
     this.data.forEach(row => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
         let _strokeColor, _fillColor, polyominoBlock
-        polyominoBlock = polyominoBlockInfo.find(polyominoBlock => {
-          return (
-            polyominoBlock.x === x &&
-            polyominoBlock.y === y
-          )
-        })
+        if(!!polyominoBlockInfo) {
+          polyominoBlock = polyominoBlockInfo.find(polyominoBlock => {
+            return (
+              polyominoBlock.x === x &&
+              polyominoBlock.y === y
+            )
+          })
+        }
         if(!!polyominoBlock) {
           _strokeColor = polyominoBlock.strokeColor
           _fillColor = polyominoBlock.fillColor
