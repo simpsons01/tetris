@@ -7,7 +7,7 @@ const TEMPLATE = path.join(__dirname, "template/index.html")
 
 module.exports = {
   context: ROOT,
-
+  devtool: "inline-source-map",
   entry: {
     main: "./main.ts",
   },

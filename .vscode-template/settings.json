@@ -1,0 +1,11 @@
+{
+  "eslint.enable": true, 
+  "eslint.autoFixOnSave": true,
+  "eslint.options": {
+    "extensions": [
+      ".js",
+      ".ts",
+      ".tsx"
+    ]
+  }
+}
