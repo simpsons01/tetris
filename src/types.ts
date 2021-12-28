@@ -1,4 +1,4 @@
-import { PolyominoShape, BlockState } from "./enum";
+import { PolyominoShape, BlockState } from './enum'
 
 export interface ICoordinate {
   x: number
@@ -6,18 +6,13 @@ export interface ICoordinate {
 }
 
 export interface IRender {
-  strokeColor: string,
+  strokeColor: string
   fillColor: string
 }
 
 export interface IPolyominoCoordinate {
   anchorIndex: number
-  coordinate: [
-    ICoordinate, 
-    ICoordinate, 
-    ICoordinate, 
-    ICoordinate
-  ]
+  coordinate: [ICoordinate, ICoordinate, ICoordinate, ICoordinate]
 }
 
 export interface IPolyominoCoordinateConfig {

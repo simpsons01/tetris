@@ -1,21 +1,40 @@
 <html>
-<head>
- <style>
-    body {
-      background-color: #292929;
-    }
+  <head>
+    <style>
+      body {
+        background-color: #292929;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
 
-    #canvas-container {
-      margin: 30px auto;
-      width: 600px;
-      height: 1200px;
-      border: 1px solid #D3D3D3;
-    }
- </style>
-</head>
-<body>
+      #canvas-container {
+        width: 600px;
+        height: 1200px;
+        border: 1px solid #d3d3d3;
+        display: flex;
+        flex-wrap: wrap;
+        position: relative;
+      }
+
+      #canvas-container .block {
+        width: 58px;
+        height: 58px;
+        border: 1px solid #d3d3d3;
+        background-color: #696969;
+      }
+
+      #canvas-container canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
     <div id="canvas-container">
-       <canvas width="600" height="1200"></canvas>
+      <canvas width="600" height="1200"></canvas>
     </div>
-</body>
+  </body>
 </html>

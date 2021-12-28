@@ -1,17 +1,14 @@
-import { ICoordinate, IPolyominoCoordinateConfig, IPolyominoCoordinate, IRender } from "../../types" 
-import {  PolyominoShape, Canvas, BlcokDistance } from "../../enum";
+import { ICoordinate, IPolyominoCoordinateConfig, IPolyominoCoordinate, IRender } from '../../types'
+import { PolyominoShape, Canvas, BlcokDistance } from '../../enum'
 
 export class BasePolyomino {
   coordinateConfig: IPolyominoCoordinateConfig
   strokeColor: string
   fillColor: string
-  coordinate: IPolyominoCoordinate['coordinate'] 
+  coordinate: IPolyominoCoordinate['coordinate']
   shape: PolyominoShape = PolyominoShape.First
 
-  constructor(
-    coordinateConfig: IPolyominoCoordinateConfig,
-    renderConfig: IRender
-  ) {
+  constructor(coordinateConfig: IPolyominoCoordinateConfig, renderConfig: IRender) {
     this.coordinateConfig = coordinateConfig
     this.strokeColor = renderConfig.strokeColor
     this.fillColor = renderConfig.fillColor
@@ -23,14 +20,14 @@ export class BasePolyomino {
   }
 
   get range() {
-   const _x = this.coordinate.map(({ x }) => x)
-   const _y = this.coordinate.map(({ y }) => y)
-   return {
-     maxX: Math.max(..._x),
-     minX: Math.min(..._x),
-     maxY: Math.max(..._y),
-     minY: Math.min(..._y),
-   }
+    const _x = this.coordinate.map(({ x }) => x)
+    const _y = this.coordinate.map(({ y }) => y)
+    return {
+      maxX: Math.max(..._x),
+      minX: Math.min(..._x),
+      maxY: Math.max(..._y),
+      minY: Math.min(..._y)
+    }
   }
 
   updateCoordinate = (coordinate: ICoordinate) => {
@@ -48,10 +45,10 @@ export class BasePolyomino {
   }
 
   getInfo = () => {
-    return this.coordinate.map(coordinate => ({ 
-      ...coordinate, 
-      strokeColor: this.strokeColor, 
-      fillColor: this.fillColor 
+    return this.coordinate.map((coordinate) => ({
+      ...coordinate,
+      strokeColor: this.strokeColor,
+      fillColor: this.fillColor
     }))
   }
 }

@@ -1,25 +1,21 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-
-const ROOT = path.resolve(__dirname, "src");
-const DESTINATION = path.resolve(__dirname, "dist");
-const TEMPLATE = path.join(__dirname, "template/index.html")
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
-  context: ROOT,
-  devtool: "inline-source-map",
+  context: path.resolve(__dirname, 'src'),
+  devtool: 'inline-source-map',
   entry: {
-    main: "./main.ts",
+    main: './index.ts'
   },
 
   output: {
-    filename: "[name].bundle.js",
-    path: DESTINATION,
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist')
   },
 
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.
-    extensions: [".ts", ".tsx", ".js"]
+    extensions: ['.ts', '.tsx', '.js']
   },
 
   module: {
@@ -27,14 +23,14 @@ module.exports = {
       {
         test: /\.tsx?$/,
         exclude: [/node_modules/],
-        use: "ts-loader",
-      },
-    ],
+        use: 'ts-loader'
+      }
+    ]
   },
   devServer: {},
   plugins: [
     new HtmlWebpackPlugin({
-      template: TEMPLATE,
-    }),
-  ],
-};
+      template: path.join(__dirname, 'template/index.html')
+    })
+  ]
+}

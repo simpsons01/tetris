@@ -8,9 +8,7 @@
     "declaration": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "lib": ["dom", "ES2015"]
+    "lib": ["dom", "ES2015", "ES2017"]
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }
