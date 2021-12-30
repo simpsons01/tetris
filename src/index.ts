@@ -11,7 +11,7 @@ import { Game } from './component/game'
   // }
   const game = new Game(new Tetris())
 
-  game.nextRound()
+  game.start()
 
   window.addEventListener('keydown', function (e) {
     if (e.keyCode === 37) {

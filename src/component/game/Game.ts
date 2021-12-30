@@ -1,4 +1,4 @@
-import { Direction } from './../../enum'
+import { BlockState, Direction } from './../../enum'
 import { Tetris } from './../tetris/Tetris'
 
 let nextTimer: number | null = null,
@@ -92,7 +92,12 @@ export class Game {
         const { bottom: isBottomCollide } = this.tetris.checkPolyominoCollide()
         if (isBottomCollide) {
           this.beforeNextRound().then(() => {
-            this.nextRound()
+            this.tetris.createPolyomino()
+            if (this.checkIsGameOver()) {
+              alert('game over')
+            } else {
+              this.nextRound()
+            }
           })
         } else {
           this.isPending = false
@@ -117,7 +122,12 @@ export class Game {
       const { bottom: isBottomCollide } = this.tetris.checkPolyominoCollide()
       if (isBottomCollide) {
         this.beforeNextRound().then(() => {
-          this.nextRound()
+          this.tetris.createPolyomino()
+          if (this.checkIsGameOver()) {
+            alert('game over')
+          } else {
+            this.nextRound()
+          }
         })
       } else {
         this.isPending = false
@@ -156,7 +166,18 @@ export class Game {
   }
 
   nextRound = () => {
-    this.tetris.createPolyomino()
     this.startAutoFall()
+  }
+
+  checkIsGameOver = () => {
+    return this.tetris.polyomino.coordinate.some(({ x, y }) => {
+      const block = this.tetris.data[y].find((block) => block.x === x)
+      return block.state === BlockState.Filled
+    })
+  }
+
+  start = () => {
+    this.tetris.createPolyomino()
+    this.nextRound()
   }
 }
