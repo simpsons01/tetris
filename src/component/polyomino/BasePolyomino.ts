@@ -1,5 +1,6 @@
 import { ICoordinate, IPolyominoCoordinateConfig, IPolyominoCoordinate, IRender } from '../../types'
 import { PolyominoShape } from '../../enum'
+import { deepColne } from '../../util'
 
 export class BasePolyomino {
   coordinateConfig: IPolyominoCoordinateConfig
@@ -12,7 +13,7 @@ export class BasePolyomino {
     this.coordinateConfig = coordinateConfig
     this.strokeColor = renderConfig.strokeColor
     this.fillColor = renderConfig.fillColor
-    this.coordinate = JSON.parse(JSON.stringify(this.coordinateConfig[this.shape].coordinate))
+    this.coordinate = deepColne(this.coordinateConfig[this.shape].coordinate)
   }
 
   get anchor() {

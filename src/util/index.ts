@@ -24,6 +24,10 @@ export const useInterval = function (
   })
 }
 
+export const deepColne = function <T = any>(val: T): T {
+  return JSON.parse(JSON.stringify(val))
+}
+
 export const getKeys = function <U extends object, T extends keyof U>(obj: U): Array<T> {
   return Object.keys(obj) as Array<T>
 }
