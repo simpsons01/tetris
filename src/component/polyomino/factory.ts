@@ -9,7 +9,7 @@ import { ZPolyomino } from './ZPolyomino'
 export class PolyominoFactory {
   create() {
     const ary = [ZPolyomino, TPolyomino, SPolyomino, OPolyomino, LPolyomino, JPolyomino, IPolyomino]
-    const polyomino = ary[Math.round(Math.random() * (ary.length - 1))]
-    return new polyomino()
+    const Polyomino = ary[Math.round(Math.random() * (ary.length - 1))]
+    return new Polyomino()
   }
 }

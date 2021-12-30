@@ -1,5 +1,5 @@
 import { ICoordinate, IPolyominoCoordinateConfig, IPolyominoCoordinate, IRender } from '../../types'
-import { PolyominoShape, Canvas, BlcokDistance } from '../../enum'
+import { PolyominoShape } from '../../enum'
 
 export class BasePolyomino {
   coordinateConfig: IPolyominoCoordinateConfig
@@ -30,6 +30,14 @@ export class BasePolyomino {
     }
   }
 
+  getNextShapeCoodinate(nextShape: PolyominoShape) {
+    const nextAnchor = this.coordinate[this.coordinateConfig[nextShape].anchorIndex]
+    return this.coordinateConfig[nextShape].coordinate.map(({ x, y }) => ({
+      x: x + nextAnchor.x,
+      y: y + nextAnchor.y
+    })) as IPolyominoCoordinate['coordinate']
+  }
+
   updateCoordinate = (coordinate: ICoordinate) => {
     this.coordinateConfig[this.shape].coordinate.forEach(({ x, y }, index) => {
       this.coordinate[index].x = x + coordinate.x
@@ -40,7 +48,8 @@ export class BasePolyomino {
 
   changeShape = (shape: PolyominoShape) => {
     this.shape = shape
-    this.updateCoordinate(this.anchor)
+    const nextAnchorCoordinate = this.anchor
+    this.updateCoordinate(nextAnchorCoordinate)
     return this.coordinate
   }
 

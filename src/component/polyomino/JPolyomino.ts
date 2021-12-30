@@ -32,17 +32,17 @@ export class JPolyomino extends BasePolyomino {
           ]
         },
         [PolyominoShape.Forth]: {
-          anchorIndex: 1,
+          anchorIndex: 2,
           coordinate: [
             { x: -1, y: 0 },
-            { x: 0, y: 0 },
             { x: 1, y: 0 },
+            { x: 0, y: 0 },
             { x: 1, y: 1 }
           ]
         }
       },
       {
-        strokeColor: '#D3D3D3',
+        strokeColor: '#292929',
         fillColor: '#A6A600'
       }
     )

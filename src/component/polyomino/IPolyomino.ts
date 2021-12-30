@@ -14,12 +14,12 @@ export class IPolyomino extends BasePolyomino {
           ]
         },
         [PolyominoShape.Second]: {
-          anchorIndex: 2,
+          anchorIndex: 1,
           coordinate: [
-            { x: -2, y: 0 },
             { x: -1, y: 0 },
             { x: 0, y: 0 },
-            { x: 1, y: 0 }
+            { x: 1, y: 0 },
+            { x: 2, y: 0 }
           ]
         },
         [PolyominoShape.Third]: {
@@ -32,17 +32,17 @@ export class IPolyomino extends BasePolyomino {
           ]
         },
         [PolyominoShape.Forth]: {
-          anchorIndex: 2,
+          anchorIndex: 1,
           coordinate: [
-            { x: -2, y: 0 },
             { x: -1, y: 0 },
             { x: 0, y: 0 },
-            { x: 1, y: 0 }
+            { x: 1, y: 0 },
+            { x: 2, y: 0 }
           ]
         }
       },
       {
-        strokeColor: '#D3D3D3',
+        strokeColor: '#292929',
         fillColor: '#00BB00'
       }
     )

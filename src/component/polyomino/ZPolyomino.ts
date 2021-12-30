@@ -5,11 +5,11 @@ export class ZPolyomino extends BasePolyomino {
     super(
       {
         [PolyominoShape.First]: {
-          anchorIndex: 1,
+          anchorIndex: 2,
           coordinate: [
             { x: -1, y: 0 },
-            { x: 0, y: 0 },
             { x: 0, y: 1 },
+            { x: 0, y: 0 },
             { x: 1, y: 1 }
           ]
         },
@@ -23,11 +23,11 @@ export class ZPolyomino extends BasePolyomino {
           ]
         },
         [PolyominoShape.Third]: {
-          anchorIndex: 1,
+          anchorIndex: 2,
           coordinate: [
             { x: -1, y: 0 },
-            { x: 0, y: 0 },
             { x: 0, y: 1 },
+            { x: 0, y: 0 },
             { x: 1, y: 1 }
           ]
         },
@@ -42,8 +42,8 @@ export class ZPolyomino extends BasePolyomino {
         }
       },
       {
-        strokeColor: '#D3D3D3',
-        fillColor: '#00CACA'
+        strokeColor: '#292929',
+        fillColor: '#8080C0'
       }
     )
   }

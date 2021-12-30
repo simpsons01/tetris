@@ -42,8 +42,8 @@ export class OPolyomino extends BasePolyomino {
         }
       },
       {
-        strokeColor: '#D3D3D3',
-        fillColor: '#00CACA'
+        strokeColor: '#292929',
+        fillColor: '#FF7575'
       }
     )
   }
