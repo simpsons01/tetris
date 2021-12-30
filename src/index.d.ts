@@ -1,7 +1,5 @@
 export {}
 
 declare global {
-  interface Window {
-    a: Function
-  }
+  interface Window {}
 }

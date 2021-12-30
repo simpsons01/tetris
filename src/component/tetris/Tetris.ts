@@ -150,7 +150,7 @@ export class Tetris {
         //@ts-ignore
         resolve()
       } else {
-        const executeTimes = 4
+        const executeTimes = 10
         resolve(
           useInterval(
             (count: number) => {
@@ -181,7 +181,7 @@ export class Tetris {
               })
               this.draw()
             },
-            50,
+            16.66666666,
             executeTimes,
             true
           ).then(() => {
@@ -200,7 +200,7 @@ export class Tetris {
       const shape = Object.values(PolyominoShape)
       const shapeIndex = shape.indexOf(this.polyomino.shape)
       const nextShape = shape[(shapeIndex + 1) % shape.length]
-      while (isNextShapeCollide && isShapeCanChange && count < 100) {
+      while (isNextShapeCollide && isShapeCanChange && count < 10000) {
         count += 1
         const nextCoordinate = this.polyomino.getNextShapeCoodinate(nextShape)
         const {

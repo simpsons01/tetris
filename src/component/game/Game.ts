@@ -16,12 +16,14 @@ export class Game {
   onPolyominCoordinateChange = () => {
     const { bottom: isBottomCollide } = this.tetris.checkPolyominoCollide()
     if (isBottomCollide) {
+      this.closeAutoFall()
       if (!this.isPending) {
         this.startNextRoundCountDownTimer()
+        this.startNextRoundTimer()
         this.isPending = true
+      } else {
+        this.startNextRoundTimer()
       }
-      this.closeAutoFall()
-      this.startNextRoundTimer()
     } else {
       if (this.isPending) {
         this.startAutoFall()
@@ -35,9 +37,6 @@ export class Game {
     if (this.tetris.polyomino) {
       const isMoveSuccess = this.tetris.movePolyomino(Direction.Right)
       if (isMoveSuccess) {
-        if (this.isPending) {
-          this.startNextRoundTimer()
-        }
         this.onPolyominCoordinateChange()
       }
     }
@@ -47,9 +46,6 @@ export class Game {
     if (this.tetris.polyomino) {
       const isMoveSuccess = this.tetris.movePolyomino(Direction.Left)
       if (isMoveSuccess) {
-        if (this.isPending) {
-          this.startNextRoundTimer()
-        }
         this.onPolyominCoordinateChange()
       }
     }
@@ -102,7 +98,7 @@ export class Game {
           this.isPending = false
           this.startAutoFall()
         }
-      }, 800)
+      }, 1000)
     }
   }
 
