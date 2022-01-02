@@ -193,6 +193,7 @@ export class Tetris {
   }
 
   changePolyominoShape = () => {
+    // 暫時待修正，仍有bug
     let isNextShapeCollide = true,
       isShapeCanChange = true,
       count = 0
@@ -200,14 +201,31 @@ export class Tetris {
       const shape = Object.values(PolyominoShape)
       const shapeIndex = shape.indexOf(this.polyomino.shape)
       const nextShape = shape[(shapeIndex + 1) % shape.length]
-      while (isNextShapeCollide && isShapeCanChange && count < 10000) {
+      while (isNextShapeCollide && isShapeCanChange && count < 100) {
         count += 1
+        let leftCollide = false,
+          rightCollide = false,
+          bottomCollide = false,
+          collideCoordinate: Array<ICoordinate> = []
         const nextCoordinate = this.polyomino.getNextShapeCoodinate(nextShape)
-        const {
-          left: leftCollide,
-          right: rightCollide,
-          bottom: bottomCollide
-        } = this.checkPolyominoCollide(nextCoordinate)
+        const nextAnchor = nextCoordinate[this.polyomino.coordinateConfig[nextShape].anchorIndex]
+        nextCoordinate.forEach((coordinate) => {
+          const isCollideWithFilledBlocked = (this.data[coordinate.y][coordinate.x] || {}).state === BlockState.Filled
+          const isCoolideWithBorder = coordinate.y >= columnNum || coordinate.x < 0 || coordinate.x >= rowNum
+          if (isCollideWithFilledBlocked || isCoolideWithBorder) {
+            collideCoordinate.push(coordinate)
+          }
+        })
+        collideCoordinate.forEach((coordinate) => {
+          if (coordinate.x > nextAnchor.x) {
+            rightCollide = true
+          } else if (coordinate.x < nextAnchor.x) {
+            leftCollide = true
+          }
+          if (coordinate.y > nextAnchor.y) {
+            bottomCollide = true
+          }
+        })
         if (!leftCollide && !rightCollide && !bottomCollide) {
           isNextShapeCollide = false
         } else if (leftCollide && rightCollide) {
