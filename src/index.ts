@@ -1,5 +1,6 @@
 import { Tetris } from './component/tetris/Tetris'
 import { Game } from './component/game'
+import { Score } from './component/score'
 ;(function () {
   // const canvasContainer = document.querySelector('#canvas-container')
   // for (let i = 0; i < 20; i++) {
@@ -9,9 +10,10 @@ import { Game } from './component/game'
   //     canvasContainer.appendChild(block)
   //   }
   // }
-  const game = new Game(new Tetris())
+  const context = document.querySelector('canvas').getContext('2d')
+  const game = new Game(new Tetris(context), new Score(context))
 
-  game.start()
+  //game.start()
 
   window.addEventListener('keydown', function (e) {
     if (e.keyCode === 37) {

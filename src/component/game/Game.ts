@@ -1,3 +1,4 @@
+import { Score } from '../score'
 import { BlockState, Direction } from './../../enum'
 import { Tetris } from './../tetris/Tetris'
 
@@ -7,10 +8,12 @@ let nextTimer: number | null = null,
 
 export class Game {
   private tetris: Tetris
+  private score: Score
   public isPending: boolean = false
 
-  constructor(tetris: Tetris) {
+  constructor(tetris: Tetris, score: Score) {
     this.tetris = tetris
+    this.score = score
   }
 
   onPolyominCoordinateChange = () => {
@@ -149,6 +152,7 @@ export class Game {
       this.tetris.resetPolyomino()
       const filledRowInedxList = this.tetris.getFilledRowInedxList()
       if (filledRowInedxList.length > 0) {
+        this.score.updateScore(filledRowInedxList.length)
         this.tetris
           .clearFilledRow()
           .then(() => {

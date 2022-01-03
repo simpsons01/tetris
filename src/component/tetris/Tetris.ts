@@ -2,17 +2,15 @@ import { BasePolyomino, PolyominoFactory } from '../polyomino'
 import { BlockState, Canvas, BlcokDistance, Direction, PolyominoShape } from '../../enum'
 import { IBlock, ICoordinate, IPolyominoCoordinate, IDirection } from '../../types'
 import { getKeys, useInterval } from '../../util'
+import { BaseComponent } from '../base'
 
-const rowNum = Canvas.Width / BlcokDistance
-const columnNum = Canvas.Height / BlcokDistance
-
-export class Tetris {
+export class Tetris extends BaseComponent {
   isPending: boolean
   polyominoFactory: PolyominoFactory
   context: CanvasRenderingContext2D
   polyomino: null | BasePolyomino
-  data: Array<Array<IBlock>> = new Array(columnNum).fill(null).map((rowNull, columnIndex) => {
-    return new Array(rowNum).fill(null).map((colNull, rowIndex) => {
+  data: Array<Array<IBlock>> = new Array(this._column).fill(null).map((rowNull, columnIndex) => {
+    return new Array(this._row).fill(null).map((colNull, rowIndex) => {
       return {
         x: rowIndex,
         y: columnIndex,
@@ -23,14 +21,23 @@ export class Tetris {
     })
   })
 
-  constructor() {
-    const canvas = document.querySelector('canvas')
-    if (!canvas) {
-      throw new Error('canvas is not exist!')
-    } else {
-      this.polyominoFactory = new PolyominoFactory()
-      this.context = canvas.getContext('2d')
-    }
+  get _row() {
+    return this.width / BlcokDistance
+  }
+
+  get _column() {
+    return this.height / BlcokDistance
+  }
+
+  constructor(context: CanvasRenderingContext2D) {
+    super({
+      x: 100,
+      y: 0,
+      width: 600,
+      height: 1200,
+      context: context
+    })
+    this.polyominoFactory = new PolyominoFactory()
   }
 
   getFilledRowInedxList = () => {
@@ -49,7 +56,7 @@ export class Tetris {
         anchor: { y: anchorY }
       } = this.polyomino
       this.polyomino.updateCoordinate({
-        x: Math.ceil((rowNum - (maxX - minX + 1)) / 2) - minX,
+        x: Math.ceil((this._row - (maxX - minX + 1)) / 2) - minX,
         y: anchorY - minY
       })
       this.draw()
@@ -61,7 +68,7 @@ export class Tetris {
   }
 
   draw = () => {
-    this.context.clearRect(0, 0, Canvas.Width, Canvas.Height)
+    this.context.clearRect(this.x, this.y, this.width, this.height)
     const polyominoBlockInfo = !this.polyomino ? null : this.polyomino.getInfo()
     this.data.forEach((row) => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
@@ -82,8 +89,8 @@ export class Tetris {
           this.context.strokeStyle = _strokeColor
           this.context.fillStyle = _fillColor
           this.context.save()
-          this.context.fillRect(x * BlcokDistance, y * BlcokDistance, BlcokDistance - 2, BlcokDistance - 2)
-          this.context.strokeRect(x * BlcokDistance, y * BlcokDistance, BlcokDistance, BlcokDistance)
+          this.context.fillRect(this.x + x * BlcokDistance, y * BlcokDistance, BlcokDistance - 2, BlcokDistance - 2)
+          this.context.strokeRect(this.x + x * BlcokDistance, y * BlcokDistance, BlcokDistance, BlcokDistance)
           this.context.restore()
         }
       })
@@ -211,7 +218,7 @@ export class Tetris {
         const nextAnchor = nextCoordinate[this.polyomino.coordinateConfig[nextShape].anchorIndex]
         nextCoordinate.forEach((coordinate) => {
           const isCollideWithFilledBlocked = (this.data[coordinate.y][coordinate.x] || {}).state === BlockState.Filled
-          const isCoolideWithBorder = coordinate.y >= columnNum || coordinate.x < 0 || coordinate.x >= rowNum
+          const isCoolideWithBorder = coordinate.y >= this._column || coordinate.x < 0 || coordinate.x >= this._row
           if (isCollideWithFilledBlocked || isCoolideWithBorder) {
             collideCoordinate.push(coordinate)
           }
@@ -286,9 +293,9 @@ export class Tetris {
       getKeys(directionMap).forEach((direction) => {
         const naerByBlock = directionMap[direction]
         if (
-          (direction === 'bottom' && naerByBlock.y >= columnNum) ||
+          (direction === 'bottom' && naerByBlock.y >= this._column) ||
           (direction === 'left' && naerByBlock.x < 0) ||
-          (direction === 'right' && naerByBlock.x >= rowNum)
+          (direction === 'right' && naerByBlock.x >= this._row)
         ) {
           status[direction] = true
         }
