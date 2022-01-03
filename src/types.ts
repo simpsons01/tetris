@@ -38,3 +38,16 @@ export interface IDirection<T = any> {
 export interface IBlock extends ICoordinate, IRender {
   state: BlockState
 }
+
+export interface IBaseComponentConfig extends ICoordinate, ISize {
+  context: CanvasRenderingContext2D
+}
+
+export interface IBaseComponent {
+  x: number
+  y: number
+  width: number
+  height: number
+  context: CanvasRenderingContext2D
+  draw(): void
+}

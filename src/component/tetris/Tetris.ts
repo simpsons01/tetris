@@ -1,8 +1,11 @@
 import { BasePolyomino, PolyominoFactory } from '../polyomino'
 import { BlockState, Canvas, BlcokDistance, Direction, PolyominoShape } from '../../enum'
-import { IBlock, ICoordinate, IPolyominoCoordinate, IDirection } from '../../types'
+import { IBlock, ICoordinate, IPolyominoCoordinate, IDirection, IBaseComponentConfig } from '../../types'
 import { getKeys, useInterval } from '../../util'
-import { BaseComponent } from '../base'
+import { BaseComponent, BaseComponentWithBorder } from '../base'
+
+const { borders, borderWidth } = BaseComponentWithBorder
+const offset = borderWidth * borders
 
 export class Tetris extends BaseComponent {
   isPending: boolean
@@ -29,14 +32,8 @@ export class Tetris extends BaseComponent {
     return this.height / BlcokDistance
   }
 
-  constructor(context: CanvasRenderingContext2D) {
-    super({
-      x: 250 + 24 + 4,
-      y: 0,
-      width: 600,
-      height: 1200,
-      context: context
-    })
+  constructor(config: IBaseComponentConfig) {
+    super(config)
     this.polyominoFactory = new PolyominoFactory()
     this.draw()
   }
@@ -69,7 +66,9 @@ export class Tetris extends BaseComponent {
   }
 
   draw() {
-    super.draw()
+    this.context.clearRect(this.x + offset, this.y + offset, this.width, this.height)
+    this.context.fillStyle = '#292929'
+    this.context.fillRect(this.x + offset, this.y + offset, this.width, this.height)
     const polyominoBlockInfo = !this.polyomino ? null : this.polyomino.getInfo()
     this.data.forEach((row) => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
@@ -91,12 +90,17 @@ export class Tetris extends BaseComponent {
           this.context.fillStyle = _fillColor
           this.context.save()
           this.context.fillRect(
-            this.x + x * BlcokDistance + 12,
-            y * BlcokDistance + 12,
+            this.x + x * BlcokDistance + offset,
+            this.y + y * BlcokDistance + offset,
             BlcokDistance - 2,
             BlcokDistance - 2
           )
-          this.context.strokeRect(this.x + x * BlcokDistance + 12, y * BlcokDistance + 12, BlcokDistance, BlcokDistance)
+          this.context.strokeRect(
+            this.x + x * BlcokDistance + offset,
+            this.y + y * BlcokDistance + offset,
+            BlcokDistance,
+            BlcokDistance
+          )
           this.context.restore()
         }
       })

@@ -1,17 +1,33 @@
 import { Tetris } from './component/tetris/Tetris'
 import { Game } from './component/game'
 import { Score } from './component/score'
+import { BaseComponentWithBorder } from './component/base'
 ;(function () {
-  // const canvasContainer = document.querySelector('#canvas-container')
-  // for (let i = 0; i < 20; i++) {
-  //   for (let k = 0; k < 10; k++) {
-  //     const block = document.createElement('div')
-  //     block.className = 'block'
-  //     canvasContainer.appendChild(block)
-  //   }
-  // }
   const context = document.querySelector('canvas').getContext('2d')
-  const game = new Game(new Tetris(context), new Score(context))
+
+  const score = new BaseComponentWithBorder(
+    new Score({
+      x: 0,
+      y: 0,
+      width: 250,
+      height: 200,
+      context: context
+    })
+  )
+
+  const tetris = new BaseComponentWithBorder(
+    new Tetris({
+      x: score.width + 4,
+      y: 0,
+      width: 600,
+      height: 1200,
+      context: context
+    })
+  )
+
+  ;[score, tetris].forEach((component) => component.draw())
+
+  const game = new Game(tetris.component as Tetris, score.component as Score)
 
   game.start()
 

@@ -1,16 +1,13 @@
-import { BaseComponent } from '../base'
+import { IBaseComponentConfig } from '../../types'
+import { BaseComponent, BaseComponentWithBorder } from '../base'
+
+const { borders, borderWidth } = BaseComponentWithBorder
+const offset = borderWidth * borders
 export class Score extends BaseComponent {
   score: number = 0
 
-  constructor(context: CanvasRenderingContext2D) {
-    super({
-      x: 0,
-      y: 0,
-      width: 250,
-      height: 200,
-      context: context
-    })
-    this.draw()
+  constructor(config: IBaseComponentConfig) {
+    super(config)
   }
 
   updateScore(score: number) {
@@ -19,7 +16,9 @@ export class Score extends BaseComponent {
   }
 
   draw() {
-    super.draw()
+    this.context.clearRect(this.x + offset, this.y + offset, this.width, this.height)
+    this.context.fillStyle = '#292929'
+    this.context.fillRect(this.x + offset, this.y + offset, this.width, this.height)
     // paint label
     this.context.font = '40px Arial'
     this.context.fillStyle = '#FFFFFF'
