@@ -31,16 +31,17 @@ export class Tetris extends BaseComponent {
 
   constructor(context: CanvasRenderingContext2D) {
     super({
-      x: 100,
+      x: 250 + 24 + 4,
       y: 0,
       width: 600,
       height: 1200,
       context: context
     })
     this.polyominoFactory = new PolyominoFactory()
+    this.draw()
   }
 
-  getFilledRowInedxList = () => {
+  getFilledRowInedxList() {
     return this.data.reduce((acc: Array<number>, row, index) => {
       const isAllFilled = row.every(({ state }) => state === BlockState.Filled)
       if (isAllFilled) acc.push(index)
@@ -48,7 +49,7 @@ export class Tetris extends BaseComponent {
     }, [])
   }
 
-  createPolyomino = () => {
+  createPolyomino() {
     if (!this.polyomino) {
       this.polyomino = this.polyominoFactory.create()
       const {
@@ -63,12 +64,12 @@ export class Tetris extends BaseComponent {
     }
   }
 
-  resetPolyomino = () => {
+  resetPolyomino() {
     this.polyomino = null
   }
 
-  draw = () => {
-    this.context.clearRect(this.x, this.y, this.width, this.height)
+  draw() {
+    super.draw()
     const polyominoBlockInfo = !this.polyomino ? null : this.polyomino.getInfo()
     this.data.forEach((row) => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
@@ -97,7 +98,7 @@ export class Tetris extends BaseComponent {
     })
   }
 
-  clearFilledRow = () => {
+  clearFilledRow() {
     let orderIndex = 0
     const order = [
       [4, 5],
@@ -130,7 +131,7 @@ export class Tetris extends BaseComponent {
     })
   }
 
-  fillEmptyRow = () => {
+  fillEmptyRow() {
     return new Promise((resolve) => {
       const data = (() => {
         let current = 0,
@@ -199,7 +200,7 @@ export class Tetris extends BaseComponent {
     })
   }
 
-  changePolyominoShape = () => {
+  changePolyominoShape() {
     // 暫時待修正，仍有bug
     let isNextShapeCollide = true,
       isShapeCanChange = true,
@@ -261,7 +262,7 @@ export class Tetris extends BaseComponent {
     }
   }
 
-  syncPolyominoInfoToData = () => {
+  syncPolyominoInfoToData() {
     const polyominoBlockInfo = this.polyomino.getInfo()
     polyominoBlockInfo.forEach(({ x, y, strokeColor, fillColor }) => {
       const row = this.data[y]
@@ -274,7 +275,7 @@ export class Tetris extends BaseComponent {
     })
   }
 
-  checkPolyominoCollide = (polyominoCoordinate?: IPolyominoCoordinate['coordinate']): IDirection<boolean> => {
+  checkPolyominoCollide(polyominoCoordinate?: IPolyominoCoordinate['coordinate']): IDirection<boolean> {
     const _coordinate = polyominoCoordinate ? polyominoCoordinate : this.polyomino.coordinate
     const status: IDirection<boolean> = { left: false, right: false, bottom: false }
     const nearbyBlockCoordinate: Array<IDirection<ICoordinate>> = _coordinate.reduce((acc, coordinate) => {
@@ -313,7 +314,7 @@ export class Tetris extends BaseComponent {
     return status
   }
 
-  movePolyomino = (direction: Direction) => {
+  movePolyomino(direction: Direction) {
     let isMoveSuccess = false,
       _x = 0,
       _y = 0

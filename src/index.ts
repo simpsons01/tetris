@@ -13,7 +13,7 @@ import { Score } from './component/score'
   const context = document.querySelector('canvas').getContext('2d')
   const game = new Game(new Tetris(context), new Score(context))
 
-  //game.start()
+  game.start()
 
   window.addEventListener('keydown', function (e) {
     if (e.keyCode === 37) {

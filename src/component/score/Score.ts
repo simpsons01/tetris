@@ -6,25 +6,33 @@ export class Score extends BaseComponent {
     super({
       x: 0,
       y: 0,
-      width: 100,
+      width: 250,
       height: 200,
       context: context
     })
     this.draw()
   }
 
-  updateScore = (score: number) => {
-    this.score = score
+  updateScore(score: number) {
+    this.score += score
     this.draw()
   }
 
-  draw = () => {
-    this.context.clearRect(this.x, this.y, this.width, this.height)
-    this.context.font = '36px Arial'
+  draw() {
+    super.draw()
+    // paint label
+    this.context.font = '40px Arial'
     this.context.fillStyle = '#FFFFFF'
-    this.context.save()
     this.context.textAlign = 'center'
-    this.context.fillText(`${this.score}`, 50, 50)
+    this.context.save()
+    this.context.fillText('Score', 125, 100)
+    this.context.restore()
+    // paint score
+    this.context.font = '46px Arial'
+    this.context.fillStyle = '#FFFFFF'
+    this.context.textAlign = 'center'
+    this.context.save()
+    this.context.fillText(`${this.score}`, 125, 150)
     this.context.restore()
   }
 }
