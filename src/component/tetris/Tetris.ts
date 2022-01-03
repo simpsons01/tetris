@@ -90,8 +90,13 @@ export class Tetris extends BaseComponent {
           this.context.strokeStyle = _strokeColor
           this.context.fillStyle = _fillColor
           this.context.save()
-          this.context.fillRect(this.x + x * BlcokDistance, y * BlcokDistance, BlcokDistance - 2, BlcokDistance - 2)
-          this.context.strokeRect(this.x + x * BlcokDistance, y * BlcokDistance, BlcokDistance, BlcokDistance)
+          this.context.fillRect(
+            this.x + x * BlcokDistance + 12,
+            y * BlcokDistance + 12,
+            BlcokDistance - 2,
+            BlcokDistance - 2
+          )
+          this.context.strokeRect(this.x + x * BlcokDistance + 12, y * BlcokDistance + 12, BlcokDistance, BlcokDistance)
           this.context.restore()
         }
       })
