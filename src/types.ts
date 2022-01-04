@@ -39,15 +39,15 @@ export interface IBlock extends ICoordinate, IRender {
   state: BlockState
 }
 
-export interface IBaseComponentConfig extends ICoordinate, ISize {
+export interface IBaseCanvas extends ISize {
   context: CanvasRenderingContext2D
+
+  draw(): void
 }
 
-export interface IBaseComponent {
-  x: number
-  y: number
-  width: number
-  height: number
-  context: CanvasRenderingContext2D
-  draw(): void
+export interface IBaseComponent extends ICoordinate, ISize {
+  baseCanvasConstructor: {
+    new (config: Pick<IBaseCanvas, 'context' | 'width' | 'height'>): IBaseCanvas
+  }
+  mount(): IBaseCanvas
 }

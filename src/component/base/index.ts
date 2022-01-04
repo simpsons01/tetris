@@ -1,14 +1,11 @@
-import { IBaseComponent, IBaseComponentConfig } from './../../types'
+import { IBaseComponent, IBaseCanvas } from './../../types'
 
-export class BaseComponent implements IBaseComponent {
-  x: number
-  y: number
+export class BaseCanvas implements IBaseCanvas {
   width: number
   height: number
   context: CanvasRenderingContext2D
-  constructor(config: IBaseComponentConfig) {
-    this.x = config.x
-    this.y = config.y
+
+  constructor(config: Pick<IBaseCanvas, 'context' | 'width' | 'height'>) {
     this.width = config.width
     this.height = config.height
     this.context = config.context
@@ -17,46 +14,53 @@ export class BaseComponent implements IBaseComponent {
   public draw() {}
 }
 
-export class BaseComponentWithBorder implements IBaseComponent {
+export class BaseComponent implements IBaseComponent {
   x: number
   y: number
   width: number
   height: number
-  context: CanvasRenderingContext2D
-  component: IBaseComponent
-  constructor(component: IBaseComponent) {
-    const { borderWidth, borders } = BaseComponentWithBorder
-    this.x = component.x
-    this.y = component.y
-    this.width = component.width + borders * borderWidth * 2
-    this.height = component.height + borders * borderWidth * 2
-    this.context = component.context
-    this.component = component
+  baseCanvasConstructor: IBaseComponent['baseCanvasConstructor']
+  constructor(config: Pick<IBaseComponent, 'x' | 'y' | 'width' | 'height' | 'baseCanvasConstructor'>) {
+    const { borderWidth, borders } = BaseComponent
+    this.x = config.x
+    this.y = config.y
+    this.width = config.width + borders * borderWidth * 2
+    this.height = config.height + borders * borderWidth * 2
+    this.baseCanvasConstructor = config.baseCanvasConstructor
   }
 
   static borders = 3
 
   static borderWidth = 4
 
-  public draw() {
-    const { borderWidth, borders } = BaseComponentWithBorder
-    this.context.clearRect(this.x, this.y, this.width, this.height)
-    this.context.fillStyle = '#C0C0C0'
-    this.context.fillRect(this.x, this.y, this.width, this.height)
-    this.context.fillStyle = '#292929'
-    this.context.fillRect(
-      this.x + (borders - 2) * borderWidth,
-      this.y + (borders - 2) * borderWidth,
-      this.width - (borders - 2) * borderWidth * 2,
-      this.height - (borders - 2) * borderWidth * 2
-    )
-    this.context.fillStyle = '#50C878'
-    this.context.fillRect(
-      this.x + (borders - 1) * borderWidth,
-      this.y + (borders - 1) * borderWidth,
-      this.width - (borders - 1) * borderWidth * 2,
-      this.height - (borders - 1) * borderWidth * 2
-    )
-    this.component.draw()
+  public mount(): IBaseCanvas {
+    const { borderWidth, borders } = BaseComponent
+    const canvasContainer = document.querySelector('#canvas-container')
+    const frame = document.createElement('div')
+    frame.classList.add('frame')
+    ;[
+      { key: 'left', value: `${this.x}px` },
+      { key: 'top', value: `${this.y}px` },
+      { key: 'width', value: `${this.width}px` },
+      { key: 'height', value: `${this.height}px` }
+    ].forEach(({ key, value }) => {
+      // @ts-ignore
+      frame.style[key] = value
+    })
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')
+    ;[
+      { key: 'height', value: `${this.height - borders * borderWidth * 2}px` },
+      { key: 'width', value: `${this.width - borders * borderWidth * 2}px` }
+    ].forEach(({ key, value }) => {
+      canvas.setAttribute(key, value)
+    })
+    frame.appendChild(canvas)
+    canvasContainer.appendChild(frame)
+    return new this.baseCanvasConstructor({
+      width: this.width - borders * borderWidth * 2,
+      height: this.height - borders * borderWidth * 2,
+      context
+    })
   }
 }

@@ -18,26 +18,49 @@
         flex-wrap: wrap;
         position: relative;
         background-color: #292929;
+        border: 4px solid #292929;
       }
 
-      #canvas-container .block {
-        width: 58px;
-        height: 58px;
-        border: 1px solid #d3d3d3;
-        background-color: #696969;
-      }
-
-      #canvas-container canvas {
+      #canvas-container .frame {
+        box-sizing: border-box;
         position: absolute;
-        left: 0;
-        top: 0;
+        border: 4px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #canvas-container .frame::before {
+        content: '';
+        display: block;
+        left: 0px;
+        right: 0px;
+        top: 0px;
+        bottom: 0px;
+        background-color: #100f0f;
         z-index: 1;
+        position: absolute;
+      }
+
+      #canvas-container .frame::after {
+        content: '';
+        display: block;
+        left: 4px;
+        right: 4px;
+        top: 4px;
+        bottom: 4px;
+        background-color: white;
+        z-index: 2;
+        position: absolute;
+      }
+
+      #canvas-container .frame canvas {
+        position: relative;
+        z-index: 3;
       }
     </style>
   </head>
   <body>
-    <div id="canvas-container">
-      <canvas width="902" height="1224"></canvas>
-    </div>
+    <div id="canvas-container"></div>
   </body>
 </html>

@@ -1,12 +1,9 @@
-import { IBaseComponentConfig } from '../../types'
-import { BaseComponent, BaseComponentWithBorder } from '../base'
-
-const { borders, borderWidth } = BaseComponentWithBorder
-const offset = borderWidth * borders
-export class Score extends BaseComponent {
+import { BaseCanvas } from '../base'
+import { IBaseCanvas } from '../../types'
+export class Score extends BaseCanvas {
   score: number = 0
 
-  constructor(config: IBaseComponentConfig) {
+  constructor(config: Pick<IBaseCanvas, 'context' | 'width' | 'height'>) {
     super(config)
   }
 
@@ -16,9 +13,9 @@ export class Score extends BaseComponent {
   }
 
   draw() {
-    this.context.clearRect(this.x + offset, this.y + offset, this.width, this.height)
+    this.context.clearRect(0, 0, this.width, this.height)
     this.context.fillStyle = '#292929'
-    this.context.fillRect(this.x + offset, this.y + offset, this.width, this.height)
+    this.context.fillRect(0, 0, this.width, this.height)
     // paint label
     this.context.font = '40px Arial'
     this.context.fillStyle = '#FFFFFF'
