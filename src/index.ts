@@ -29,7 +29,7 @@ import { BaseComponentWithBorder } from './component/base'
 
   const game = new Game(tetris.component as Tetris, score.component as Score)
 
-  game.start()
+  //game.start()
 
   window.addEventListener('keydown', function (e) {
     if (e.keyCode === 37) {

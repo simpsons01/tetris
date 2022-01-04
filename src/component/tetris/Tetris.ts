@@ -35,7 +35,6 @@ export class Tetris extends BaseComponent {
   constructor(config: IBaseComponentConfig) {
     super(config)
     this.polyominoFactory = new PolyominoFactory()
-    this.draw()
   }
 
   getFilledRowInedxList() {
