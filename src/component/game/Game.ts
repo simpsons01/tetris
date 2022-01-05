@@ -1,3 +1,5 @@
+import { deepColne } from '../../util'
+import { LineUp } from '../lineUp/lineUp'
 import { Score } from '../score'
 import { BlockState, Direction } from './../../enum'
 import { Tetris } from './../tetris/Tetris'
@@ -9,11 +11,13 @@ let nextTimer: number | null = null,
 export class Game {
   private tetris: Tetris
   private score: Score
+  private lineUp: LineUp
   public isPending: boolean = false
 
-  constructor(tetris: Tetris, score: Score) {
+  constructor(tetris: Tetris, score: Score, lineUp: LineUp) {
     this.tetris = tetris
     this.score = score
+    this.lineUp = lineUp
   }
 
   onPolyominCoordinateChange = () => {
@@ -95,7 +99,8 @@ export class Game {
         const { bottom: isBottomCollide } = this.tetris.checkPolyominoCollide()
         if (isBottomCollide) {
           this.beforeNextRound().then(() => {
-            this.tetris.createPolyomino()
+            this.tetris.polyomino = deepColne(this.lineUp.first)
+            this.lineUp.next()
             if (this.checkIsGameOver()) {
               alert('game over')
             } else {
@@ -125,7 +130,8 @@ export class Game {
       const { bottom: isBottomCollide } = this.tetris.checkPolyominoCollide()
       if (isBottomCollide) {
         this.beforeNextRound().then(() => {
-          this.tetris.createPolyomino()
+          this.tetris.setPolyomino(this.lineUp.first)
+          this.lineUp.next()
           if (this.checkIsGameOver()) {
             alert('game over')
           } else {
@@ -181,7 +187,8 @@ export class Game {
   }
 
   start = () => {
-    this.tetris.createPolyomino()
+    this.tetris.setPolyomino(this.lineUp.first)
+    this.lineUp.next()
     this.nextRound()
   }
 }

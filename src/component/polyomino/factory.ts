@@ -1,3 +1,4 @@
+import { BasePolyomino } from './BasePolyomino'
 import { IPolyomino } from './IPolyomino'
 import { JPolyomino } from './JPolyomino'
 import { LPolyomino } from './LPolyomino'
@@ -5,11 +6,21 @@ import { OPolyomino } from './OPolyomino'
 import { SPolyomino } from './SPolyomino'
 import { TPolyomino } from './TPolyomino'
 import { ZPolyomino } from './ZPolyomino'
-
+interface IPolyominoConstuctor {
+  new (): BasePolyomino
+}
 export class PolyominoFactory {
-  create() {
-    const ary = [ZPolyomino, TPolyomino, SPolyomino, OPolyomino, LPolyomino, JPolyomino, IPolyomino]
-    const Polyomino = ary[Math.round(Math.random() * (ary.length - 1))]
-    return new Polyomino()
+  create(type: string) {
+    const map: { [type: string]: IPolyominoConstuctor } = {
+      I: IPolyomino,
+      J: JPolyomino,
+      L: LPolyomino,
+      O: OPolyomino,
+      S: SPolyomino,
+      T: TPolyomino,
+      Z: ZPolyomino
+    }
+    const polyomino: IPolyominoConstuctor = map[type] ? map[type] : IPolyomino
+    return new polyomino()
   }
 }

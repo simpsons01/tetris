@@ -2,6 +2,7 @@ import { Tetris } from './component/tetris/Tetris'
 import { Game } from './component/game'
 import { Score } from './component/score'
 import { BaseComponent } from './component/base'
+import { LineUp } from './component/lineUp/lineUp'
 ;(function () {
   const scoreFrame = new BaseComponent({
     x: 0,
@@ -9,6 +10,14 @@ import { BaseComponent } from './component/base'
     width: 250,
     height: 200,
     baseCanvasConstructor: Score
+  })
+
+  const lineUpFrame = new BaseComponent({
+    x: 0,
+    y: scoreFrame.height + 4,
+    width: 250,
+    height: 1200 - scoreFrame.height - 4,
+    baseCanvasConstructor: LineUp
   })
 
   const tetrisFrame = new BaseComponent({
@@ -19,13 +28,13 @@ import { BaseComponent } from './component/base'
     baseCanvasConstructor: Tetris
   })
 
-  const [tetris, score] = [tetrisFrame, scoreFrame].map((frame) => {
+  const [tetris, score, lineUp] = [tetrisFrame, scoreFrame, lineUpFrame].map((frame) => {
     const canvas = frame.mount()
     canvas.draw()
     return canvas
   })
 
-  const game = new Game(tetris as Tetris, score as Score)
+  const game = new Game(tetris as Tetris, score as Score, lineUp as LineUp)
 
   //game.start()
 
@@ -50,3 +59,5 @@ import { BaseComponent } from './component/base'
   // @ts-ignore
   window.t = game
 })()
+
+1000

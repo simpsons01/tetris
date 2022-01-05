@@ -1,11 +1,10 @@
-import { BasePolyomino, PolyominoFactory } from '../polyomino'
+import { BasePolyomino } from '../polyomino'
 import { BlockState, BlcokDistance, Direction, PolyominoShape } from '../../enum'
 import { IBlock, ICoordinate, IPolyominoCoordinate, IDirection, IBaseCanvas } from '../../types'
 import { getKeys, useInterval } from '../../util'
 import { BaseCanvas } from '../base'
 export class Tetris extends BaseCanvas {
   isPending: boolean
-  polyominoFactory: PolyominoFactory
   context: CanvasRenderingContext2D
   polyomino: null | BasePolyomino
   data: Array<Array<IBlock>> = new Array(this._column).fill(null).map((rowNull, columnIndex) => {
@@ -30,7 +29,6 @@ export class Tetris extends BaseCanvas {
 
   constructor(config: Pick<IBaseCanvas, 'context' | 'width' | 'height'>) {
     super(config)
-    this.polyominoFactory = new PolyominoFactory()
   }
 
   getFilledRowInedxList() {
@@ -41,9 +39,9 @@ export class Tetris extends BaseCanvas {
     }, [])
   }
 
-  createPolyomino() {
+  setPolyomino(polyomino: BasePolyomino) {
     if (!this.polyomino) {
-      this.polyomino = this.polyominoFactory.create()
+      this.polyomino = polyomino
       const {
         range: { minX, maxX, minY },
         anchor: { y: anchorY }
