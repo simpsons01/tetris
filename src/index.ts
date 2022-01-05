@@ -7,7 +7,7 @@ import { LineUp } from './component/lineUp/lineUp'
   const scoreFrame = new BaseComponent({
     x: 0,
     y: 0,
-    width: 250,
+    width: 300,
     height: 200,
     baseCanvasConstructor: Score
   })
@@ -15,7 +15,7 @@ import { LineUp } from './component/lineUp/lineUp'
   const lineUpFrame = new BaseComponent({
     x: 0,
     y: scoreFrame.height + 4,
-    width: 250,
+    width: 300,
     height: 1200 - scoreFrame.height - 4,
     baseCanvasConstructor: LineUp
   })
@@ -35,6 +35,16 @@ import { LineUp } from './component/lineUp/lineUp'
   })
 
   const game = new Game(tetris as Tetris, score as Score, lineUp as LineUp)
+
+  const setCanvasContainerSize = () => {
+    const width = lineUpFrame.width + tetrisFrame.width
+    const height = tetrisFrame.height
+    const canvasContainer: HTMLElement = document.querySelector('#canvas-container')
+    canvasContainer.style.width = `${width}px`
+    canvasContainer.style.height = `${height}px`
+  }
+
+  setCanvasContainerSize()
 
   //game.start()
 
