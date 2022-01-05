@@ -17,18 +17,18 @@ export class Score extends BaseCanvas {
     this.context.fillStyle = '#292929'
     this.context.fillRect(0, 0, this.width, this.height)
     // paint label
-    this.context.font = '40px Arial'
+    this.context.font = '70px Arial'
     this.context.fillStyle = '#FFFFFF'
     this.context.textAlign = 'center'
     this.context.save()
-    this.context.fillText('Score', 125, 100)
+    this.context.fillText('Score', 150, 61 + 70 - 10)
     this.context.restore()
     // paint score
-    this.context.font = '46px Arial'
+    this.context.font = '70px Arial'
     this.context.fillStyle = '#FFFFFF'
     this.context.textAlign = 'center'
     this.context.save()
-    this.context.fillText(`${this.score}`, 125, 150)
+    this.context.fillText(`${this.score}`, 150, 61 + 10 + 70 + 70 - 10)
     this.context.restore()
   }
 }

@@ -61,24 +61,40 @@ export class LineUp extends BaseCanvas {
   }
 
   draw() {
+    const row = 4
+    const column = 4
+    const horizontalMargin = 30
+    const verticalMargin = 10
+    const offsetX = (() => {})()
     this.context.clearRect(0, 0, this.width, this.height)
     this.context.fillStyle = '#292929'
     this.context.fillRect(0, 0, this.width, this.height)
     this.list.forEach(({ polyomino }, index) => {
-      const offsetY = 100 + index * 300
-      const offsetX = 100
+      const {
+        range: { minX, maxX, minY, maxY }
+      } = polyomino
+      polyomino.updateCoordinate({
+        x: Math.ceil((row - (maxX - minX + 1)) / 2) - minX,
+        y: Math.ceil((column - (maxY - minY + 1)) / 2) - minY
+      })
       const polyominoInfo = polyomino.getInfo()
+      polyomino.resetCoordinate()
       polyominoInfo.forEach(({ x, y, strokeColor, fillColor }) => {
         this.context.strokeStyle = strokeColor
         this.context.fillStyle = fillColor
         this.context.save()
         this.context.fillRect(
-          x * BlcokDistance + offsetX,
-          y * BlcokDistance + offsetY,
+          x * BlcokDistance,
+          y * BlcokDistance + verticalMargin + index * 300,
           BlcokDistance - 2,
           BlcokDistance - 2
         )
-        this.context.strokeRect(x * BlcokDistance + offsetX, y * BlcokDistance + offsetY, BlcokDistance, BlcokDistance)
+        this.context.strokeRect(
+          x * BlcokDistance,
+          y * BlcokDistance + verticalMargin + index * 300,
+          BlcokDistance,
+          BlcokDistance
+        )
         this.context.restore()
       })
     })

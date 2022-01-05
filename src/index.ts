@@ -8,16 +8,8 @@ import { LineUp } from './component/lineUp/lineUp'
     x: 0,
     y: 0,
     width: 300,
-    height: 200,
+    height: 272,
     baseCanvasConstructor: Score
-  })
-
-  const lineUpFrame = new BaseComponent({
-    x: 0,
-    y: scoreFrame.height + 4,
-    width: 300,
-    height: 1200 - scoreFrame.height - 4,
-    baseCanvasConstructor: LineUp
   })
 
   const tetrisFrame = new BaseComponent({
@@ -26,6 +18,14 @@ import { LineUp } from './component/lineUp/lineUp'
     width: 600,
     height: 1200,
     baseCanvasConstructor: Tetris
+  })
+
+  const lineUpFrame = new BaseComponent({
+    x: 0,
+    y: scoreFrame.height + 4,
+    width: 300,
+    height: 900,
+    baseCanvasConstructor: LineUp
   })
 
   const [tetris, score, lineUp] = [tetrisFrame, scoreFrame, lineUpFrame].map((frame) => {
@@ -70,4 +70,6 @@ import { LineUp } from './component/lineUp/lineUp'
   window.t = game
 })()
 
-1000
+1224
+
+1176 / 3
