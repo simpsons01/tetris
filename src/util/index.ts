@@ -59,10 +59,6 @@ abstract class Timer {
 }
 
 export class IntervalTimer extends Timer {
-  constructor(sec: number, isOverwritAble: boolean = false) {
-    super(sec, isOverwritAble)
-  }
-
   create() {
     const action = () => {
       this.timer = window.setInterval(() => {

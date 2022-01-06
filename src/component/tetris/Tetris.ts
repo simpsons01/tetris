@@ -28,10 +28,6 @@ export class Tetris extends BaseCanvas {
     return this.height / BlcokDistance
   }
 
-  constructor(config: Pick<IBaseCanvas, 'context' | 'width' | 'height'>) {
-    super(config)
-  }
-
   findBlock(coodrinate: ICoordinate) {
     let block = null
     try {

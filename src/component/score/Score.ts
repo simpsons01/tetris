@@ -3,10 +3,6 @@ import { IBaseCanvas } from '../../types'
 export class Score extends BaseCanvas {
   score: number = 0
 
-  constructor(config: Pick<IBaseCanvas, 'context' | 'width' | 'height'>) {
-    super(config)
-  }
-
   updateScore(score: number) {
     this.score += score
     this.draw()
