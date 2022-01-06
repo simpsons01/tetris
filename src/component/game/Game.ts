@@ -1,12 +1,12 @@
-import { deepColne } from '../../util'
+import { IntervalTimer, CountDownTimer } from '../../util'
 import { LineUp } from '../lineUp/lineUp'
 import { Score } from '../score'
-import { BlockState, Direction } from './../../enum'
+import { Direction } from './../../enum'
 import { Tetris } from './../tetris/Tetris'
 
-let nextRoundTimer: number | null = null,
-  nextRoundCountDownTimer: number | null = null,
-  fallTimer: number | null = null
+const nextRoundTimer = new CountDownTimer(0.6, true),
+  nextRoundCountDownTimer = new CountDownTimer(1.2),
+  polyominoFallTimer = new IntervalTimer(0.7)
 
 export class Game {
   private tetris: Tetris
@@ -23,7 +23,7 @@ export class Game {
   onPolyominCoordinateChange() {
     const { bottom: isBottomCollide } = this.tetris.getPolyominoCollideStatus()
     if (isBottomCollide) {
-      this.closeAutoFall()
+      this.closePolyominoAutoFall()
       if (!this.isPending) {
         this.startNextRoundCountDownTimer()
         this.startNextRoundTimer()
@@ -33,7 +33,7 @@ export class Game {
       }
     } else {
       if (this.isPending) {
-        this.startAutoFall()
+        this.startPolyominoAutoFall()
         this.closeNextRoundCountDownTimer()
         this.closeNextRoundTimer()
       }
@@ -76,82 +76,53 @@ export class Game {
     }
   }
 
-  startAutoFall() {
-    if (!fallTimer) {
-      fallTimer = window.setInterval(() => {
-        this.movePolyominoDown()
-      }, 700)
-    }
+  startPolyominoAutoFall() {
+    polyominoFallTimer.start(() => {
+      this.movePolyominoDown()
+    })
   }
 
-  closeAutoFall() {
-    if (fallTimer) {
-      window.clearInterval(fallTimer)
-      fallTimer = null
-    }
+  closePolyominoAutoFall() {
+    polyominoFallTimer.close()
   }
 
   startNextRoundCountDownTimer() {
-    if (!nextRoundCountDownTimer) {
-      nextRoundCountDownTimer = window.setTimeout(() => {
+    nextRoundCountDownTimer.start(() => {
+      if (this.isPending) {
         this.closeNextRoundTimer()
-        nextRoundCountDownTimer = null
         const { bottom: isBottomCollide } = this.tetris.getPolyominoCollideStatus()
         if (isBottomCollide) {
           this.beforeNextRound().then(() => {
-            this.tetris.setPolyomino(this.lineUp.first)
-            this.tetris.centerTopPolyomino()
-            this.lineUp.next()
-            if (this.isGameOver()) {
-              console.log('game is over')
-            } else {
-              this.nextRound()
-            }
+            this.nextRound()
           })
         } else {
           this.isPending = false
-          this.startAutoFall()
+          this.startPolyominoAutoFall()
         }
-      }, 1000)
-    }
+      }
+    })
   }
 
   closeNextRoundCountDownTimer() {
-    if (nextRoundCountDownTimer) {
-      window.clearTimeout(nextRoundCountDownTimer)
-      nextRoundCountDownTimer = null
-    }
+    nextRoundCountDownTimer.close()
   }
 
   startNextRoundTimer() {
-    this.closeNextRoundTimer()
-    nextRoundTimer = window.setTimeout(() => {
-      this.closeNextRoundCountDownTimer()
-      nextRoundTimer = null
+    nextRoundTimer.start(() => {
       const { bottom: isBottomCollide } = this.tetris.getPolyominoCollideStatus()
       if (isBottomCollide) {
         this.beforeNextRound().then(() => {
-          this.tetris.setPolyomino(this.lineUp.first)
-          this.tetris.centerTopPolyomino()
-          this.lineUp.next()
-          if (this.isGameOver()) {
-            console.log('game is over')
-          } else {
-            this.nextRound()
-          }
+          this.nextRound()
         })
       } else {
         this.isPending = false
-        this.startAutoFall()
+        this.startPolyominoAutoFall()
       }
-    }, 600)
+    })
   }
 
   closeNextRoundTimer() {
-    if (nextRoundTimer) {
-      window.clearTimeout(nextRoundTimer)
-      nextRoundTimer = null
-    }
+    nextRoundTimer.close()
   }
 
   beforeNextRound() {
@@ -178,7 +149,15 @@ export class Game {
   }
 
   nextRound() {
-    this.startAutoFall()
+    this.tetris.setPolyomino(this.lineUp.first)
+    this.tetris.centerTopPolyomino()
+    this.lineUp.next()
+    if (this.isGameOver()) {
+      console.log('game is over')
+    } else {
+      this.isPending = false
+      this.startPolyominoAutoFall()
+    }
   }
 
   isGameOver() {
@@ -190,10 +169,10 @@ export class Game {
     this.tetris.setPolyomino(this.lineUp.first)
     this.tetris.centerTopPolyomino()
     this.lineUp.next()
-    this.nextRound()
+    this.startPolyominoAutoFall()
   }
 
   pause() {
-    this.closeAutoFall()
+    this.closePolyominoAutoFall()
   }
 }

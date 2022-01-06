@@ -55,7 +55,7 @@ import { LineUp } from './component/lineUp/lineUp'
     if (e.keyCode === 39) {
       game.movePolyominoRight()
     } else if (e.keyCode === 40) {
-      game.closeAutoFall()
+      game.closePolyominoAutoFall()
       game.movePolyominoDown()
     }
   })
@@ -63,7 +63,7 @@ import { LineUp } from './component/lineUp/lineUp'
     if (e.keyCode === 38) {
       game.changePolyominoShape()
     } else if (e.keyCode === 40) {
-      game.startAutoFall()
+      game.startPolyominoAutoFall()
     }
   })
   // @ts-ignore
