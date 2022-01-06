@@ -1,6 +1,7 @@
+import { ICoordinate } from './../../types'
 import { BasePolyomino } from '../polyomino'
 import { BlockState, BlcokDistance, Direction, PolyominoShape } from '../../enum'
-import { IBlock, ICoordinate, IPolyominoCoordinate, IDirection, IBaseCanvas } from '../../types'
+import { IBlock, IPolyominoCoordinate, IDirection, IBaseCanvas } from '../../types'
 import { getKeys, useInterval } from '../../util'
 import { BaseCanvas } from '../base'
 export class Tetris extends BaseCanvas {
@@ -31,6 +32,16 @@ export class Tetris extends BaseCanvas {
     super(config)
   }
 
+  findBlock(coodrinate: ICoordinate) {
+    let block = null
+    try {
+      block = this.data[coodrinate.y][coodrinate.x]
+    } catch (error) {
+      console.warn(error)
+    }
+    return block
+  }
+
   getFilledRowInedxList() {
     return this.data.reduce((acc: Array<number>, row, index) => {
       const isAllFilled = row.every(({ state }) => state === BlockState.Filled)
@@ -39,18 +50,21 @@ export class Tetris extends BaseCanvas {
     }, [])
   }
 
+  centerTopPolyomino() {
+    const {
+      range: { minX, maxX, minY },
+      anchor: { y: anchorY }
+    } = this.polyomino
+    this.polyomino.updateCoordinate({
+      x: Math.ceil((this._row - (maxX - minX + 1)) / 2) - minX,
+      y: anchorY - minY
+    })
+    this.draw()
+  }
+
   setPolyomino(polyomino: BasePolyomino) {
     if (!this.polyomino) {
       this.polyomino = polyomino
-      const {
-        range: { minX, maxX, minY },
-        anchor: { y: anchorY }
-      } = this.polyomino
-      this.polyomino.updateCoordinate({
-        x: Math.ceil((this._row - (maxX - minX + 1)) / 2) - minX,
-        y: anchorY - minY
-      })
-      this.draw()
     }
   }
 
@@ -91,8 +105,8 @@ export class Tetris extends BaseCanvas {
   }
 
   clearFilledRow() {
-    let orderIndex = 0
-    const order = [
+    let resetOrderIndex = 0
+    const resetOrder = [
       [4, 5],
       [3, 6],
       [2, 7],
@@ -104,17 +118,17 @@ export class Tetris extends BaseCanvas {
       useInterval(
         () => {
           filledRowInedxList.forEach((rowIndex) => {
-            order[orderIndex].forEach((unFilledIndex) => {
+            resetOrder[resetOrderIndex].forEach((unFilledIndex) => {
               this.data[rowIndex][unFilledIndex].state = BlockState.Unfilled
               this.data[rowIndex][unFilledIndex].strokeColor = ''
               this.data[rowIndex][unFilledIndex].fillColor = ''
             })
           })
           this.draw()
-          orderIndex += 1
+          resetOrderIndex += 1
         },
         50,
-        order.length,
+        resetOrder.length,
         true
       ).then(() => {
         // @ts-ignore
@@ -193,44 +207,45 @@ export class Tetris extends BaseCanvas {
   }
 
   changePolyominoShape() {
-    // 暫時待修正，仍有bug
     let isNextShapeCollide = true,
-      isShapeCanChange = true,
-      count = 0
+      isShapeCanChange = true
     if (this.polyomino) {
       const shape = Object.values(PolyominoShape)
       const shapeIndex = shape.indexOf(this.polyomino.shape)
       const nextShape = shape[(shapeIndex + 1) % shape.length]
-      while (isNextShapeCollide && isShapeCanChange && count < 100) {
-        count += 1
-        let leftCollide = false,
-          rightCollide = false,
-          bottomCollide = false,
-          collideCoordinate: Array<ICoordinate> = []
-        const nextCoordinate = this.polyomino.getNextShapeCoodinate(nextShape)
-        const nextAnchor = nextCoordinate[this.polyomino.coordinateConfig[nextShape].anchorIndex]
-        nextCoordinate.forEach((coordinate) => {
-          const isCollideWithFilledBlocked = (this.data[coordinate.y][coordinate.x] || {}).state === BlockState.Filled
-          const isCoolideWithBorder = coordinate.y >= this._column || coordinate.x < 0 || coordinate.x >= this._row
-          if (isCollideWithFilledBlocked || isCoolideWithBorder) {
-            collideCoordinate.push(coordinate)
-          }
-        })
-        collideCoordinate.forEach((coordinate) => {
-          if (coordinate.x > nextAnchor.x) {
-            rightCollide = true
-          } else if (coordinate.x < nextAnchor.x) {
-            leftCollide = true
-          }
-          if (coordinate.y > nextAnchor.y) {
-            bottomCollide = true
-          }
-        })
-        if (!leftCollide && !rightCollide && !bottomCollide) {
-          isNextShapeCollide = false
-        } else if (leftCollide && rightCollide) {
-          isShapeCanChange = false
-        } else {
+      const nextCoordinate = this.polyomino.getCoodinate(nextShape)
+      const nextAnchor = nextCoordinate[this.polyomino.coordinateConfig[nextShape].anchorIndex]
+      const collideCoordinate = nextCoordinate.reduce((acc, coordinate) => {
+        const isCoolideWithBorder =
+          coordinate.y < 0 || coordinate.y >= this._column || coordinate.x < 0 || coordinate.x >= this._row
+        const isCollideWithFilledBlocked = (this.findBlock(coordinate) || {}).state === BlockState.Filled
+        if (isCollideWithFilledBlocked || isCoolideWithBorder) acc.push(coordinate)
+        return acc
+      }, [])
+      let leftCollide = false,
+        rightCollide = false,
+        bottomCollide = false
+      collideCoordinate.forEach((coordinate) => {
+        if (coordinate.x == nextAnchor.x) {
+          leftCollide = true
+          rightCollide = true
+        } else if (coordinate.x > nextAnchor.x) {
+          rightCollide = true
+        } else if (coordinate.x < nextAnchor.x) {
+          leftCollide = true
+        }
+        if (coordinate.y >= nextAnchor.y) {
+          bottomCollide = true
+        }
+      })
+      if (!leftCollide && !rightCollide && !bottomCollide) {
+        isNextShapeCollide = false
+      }
+      if (leftCollide && rightCollide) {
+        isShapeCanChange = false
+      }
+      if (isShapeCanChange) {
+        if (isNextShapeCollide) {
           let _x = 0,
             _y = 0
           if (bottomCollide) _y -= 1
@@ -240,15 +255,11 @@ export class Tetris extends BaseCanvas {
             x: this.polyomino.anchor.x + _x,
             y: this.polyomino.anchor.y + _y
           })
+          return this.changePolyominoShape.call(this)
+        } else {
+          this.polyomino.changeShape(nextShape)
+          this.draw()
         }
-      }
-      if (count >= 100) {
-        alert('something go wrong')
-      }
-      console.log(count)
-      if (isShapeCanChange) {
-        this.polyomino.changeShape(nextShape)
-        this.draw()
       }
       return isShapeCanChange
     }
@@ -257,19 +268,18 @@ export class Tetris extends BaseCanvas {
   syncPolyominoInfoToData() {
     const polyominoBlockInfo = this.polyomino.getInfo()
     polyominoBlockInfo.forEach(({ x, y, strokeColor, fillColor }) => {
-      const row = this.data[y]
-      const index = row.findIndex(({ x: _x }) => _x === x)
-      if (index > -1) {
-        row[index].strokeColor = strokeColor
-        row[index].fillColor = fillColor
-        row[index].state = BlockState.Filled
+      const block = this.findBlock({ x, y })
+      if (block) {
+        block.strokeColor = strokeColor
+        block.fillColor = fillColor
+        block.state = BlockState.Filled
       }
     })
   }
 
-  checkPolyominoCollide(polyominoCoordinate?: IPolyominoCoordinate['coordinate']): IDirection<boolean> {
+  getPolyominoCollideStatus(polyominoCoordinate?: IPolyominoCoordinate['coordinate']): IDirection<boolean> {
     const _coordinate = polyominoCoordinate ? polyominoCoordinate : this.polyomino.coordinate
-    const status: IDirection<boolean> = { left: false, right: false, bottom: false }
+    const status: IDirection<boolean> = { left: false, right: false, bottom: false, top: false }
     const nearbyBlockCoordinate: Array<IDirection<ICoordinate>> = _coordinate.reduce((acc, coordinate) => {
       const _x = coordinate.x,
         _y = coordinate.y
@@ -278,7 +288,8 @@ export class Tetris extends BaseCanvas {
         {
           left: { x: _x - 1, y: _y },
           right: { x: _x + 1, y: _y },
-          bottom: { x: _x, y: _y + 1 }
+          bottom: { x: _x, y: _y + 1 },
+          top: { x: _x, y: _y - 1 }
         }
       ]
     }, [])
@@ -286,6 +297,7 @@ export class Tetris extends BaseCanvas {
       getKeys(directionMap).forEach((direction) => {
         const naerByBlock = directionMap[direction]
         if (
+          (direction === 'top' && naerByBlock.y < 0) ||
           (direction === 'bottom' && naerByBlock.y >= this._column) ||
           (direction === 'left' && naerByBlock.x < 0) ||
           (direction === 'right' && naerByBlock.x >= this._row)
@@ -293,12 +305,9 @@ export class Tetris extends BaseCanvas {
           status[direction] = true
         }
         if (!status[direction]) {
-          const row = this.data[naerByBlock.y]
-          if (!!row) {
-            const block = row.find(({ x }) => x === naerByBlock.x)
-            if (!!block && block.state === BlockState.Filled) {
-              status[direction] = true
-            }
+          const block = this.findBlock({ x: naerByBlock.x, y: naerByBlock.y })
+          if (!!block && block.state === BlockState.Filled) {
+            status[direction] = true
           }
         }
       })
@@ -310,7 +319,7 @@ export class Tetris extends BaseCanvas {
     let isMoveSuccess = false,
       _x = 0,
       _y = 0
-    const { left: isLeftCollide, right: isRightCollide, bottom: isBottomCollide } = this.checkPolyominoCollide()
+    const { left: isLeftCollide, right: isRightCollide, bottom: isBottomCollide } = this.getPolyominoCollideStatus()
     ;({
       [Direction.Left]: () => {
         _x = isLeftCollide ? 0 : -1

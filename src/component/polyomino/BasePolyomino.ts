@@ -31,15 +31,15 @@ export class BasePolyomino {
     }
   }
 
-  getNextShapeCoodinate(nextShape: PolyominoShape) {
-    const nextAnchor = this.coordinate[this.coordinateConfig[nextShape].anchorIndex]
-    return this.coordinateConfig[nextShape].coordinate.map(({ x, y }) => ({
-      x: x + nextAnchor.x,
-      y: y + nextAnchor.y
+  getCoodinate(shape: PolyominoShape) {
+    const anchor = this.coordinate[this.coordinateConfig[shape].anchorIndex]
+    return this.coordinateConfig[shape].coordinate.map(({ x, y }) => ({
+      x: x + anchor.x,
+      y: y + anchor.y
     })) as IPolyominoCoordinate['coordinate']
   }
 
-  updateCoordinate = (coordinate: ICoordinate) => {
+  updateCoordinate(coordinate: ICoordinate) {
     this.coordinateConfig[this.shape].coordinate.forEach(({ x, y }, index) => {
       this.coordinate[index].x = x + coordinate.x
       this.coordinate[index].y = y + coordinate.y
@@ -47,7 +47,7 @@ export class BasePolyomino {
     return this.coordinate
   }
 
-  resetCoordinate = () => {
+  resetCoordinate() {
     this.changeShape(PolyominoShape.First)
     this.coordinateConfig[PolyominoShape.First].coordinate.forEach(({ x, y }, index) => {
       this.coordinate[index].x = x
@@ -55,14 +55,14 @@ export class BasePolyomino {
     })
   }
 
-  changeShape = (shape: PolyominoShape) => {
+  changeShape(shape: PolyominoShape) {
     this.shape = shape
     const nextAnchorCoordinate = this.anchor
     this.updateCoordinate(nextAnchorCoordinate)
     return this.coordinate
   }
 
-  getInfo = () => {
+  getInfo() {
     return this.coordinate.map((coordinate) => ({
       ...coordinate,
       strokeColor: this.strokeColor,

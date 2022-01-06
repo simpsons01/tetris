@@ -33,6 +33,7 @@ export interface IDirection<T = any> {
   left: T
   right: T
   bottom: T
+  top: T
 }
 
 export interface IBlock extends ICoordinate, IRender {
