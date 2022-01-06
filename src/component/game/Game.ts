@@ -4,9 +4,9 @@ import { Score } from '../score'
 import { Direction } from './../../enum'
 import { Tetris } from './../tetris/Tetris'
 
-const nextRoundTimer = new CountDownTimer(0.6, true),
-  nextRoundCountDownTimer = new CountDownTimer(1.2),
-  polyominoFallTimer = new IntervalTimer(0.7)
+const nextRoundTimer = new CountDownTimer(0.5, true),
+  nextRoundCountDownTimer = new CountDownTimer(1.5),
+  polyominoFallTimer = new IntervalTimer(0.8)
 
 export class Game {
   private tetris: Tetris
