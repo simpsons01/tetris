@@ -43,12 +43,11 @@ export interface IBlock extends ICoordinate, IRender {
 export interface IBaseCanvas extends ISize {
   context: CanvasRenderingContext2D
 
-  draw(): void
+  draw(...args: Array<any>): void
 }
 
 export interface IBaseComponent extends ICoordinate, ISize {
-  baseCanvasConstructor: {
-    new (config: Pick<IBaseCanvas, 'context' | 'width' | 'height'>): IBaseCanvas
-  }
-  mount(): IBaseCanvas
+  canvasWidth: number
+  canvasHeight: number
+  mount(): CanvasRenderingContext2D
 }

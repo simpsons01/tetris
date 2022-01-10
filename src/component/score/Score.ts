@@ -1,5 +1,4 @@
 import { BaseCanvas } from '../base'
-import { IBaseCanvas } from '../../types'
 export class Score extends BaseCanvas {
   score: number = 0
 

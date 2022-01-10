@@ -1,27 +1,27 @@
 import { IntervalTimer, CountDownTimer } from '../../util'
 import { LineUp } from '../lineUp/lineUp'
 import { Score } from '../score'
+import { TetrisView } from '../tetris'
 import { Direction } from './../../enum'
-import { Tetris } from './../tetris/Tetris'
 
 const nextRoundTimer = new CountDownTimer(0.5, true),
   nextRoundCountDownTimer = new CountDownTimer(1.5),
   polyominoFallTimer = new IntervalTimer(0.8)
 
 export class Game {
-  private tetris: Tetris
+  private tetris: TetrisView
   private score: Score
   private lineUp: LineUp
   public isPending: boolean = false
 
-  constructor(tetris: Tetris, score: Score, lineUp: LineUp) {
+  constructor(tetris: TetrisView, score: Score, lineUp: LineUp) {
     this.tetris = tetris
     this.score = score
     this.lineUp = lineUp
   }
 
   onPolyominCoordinateChange() {
-    const { bottom: isBottomCollide } = this.tetris.getPolyominoCollideStatus()
+    const { isBottomCollide } = this.tetris.checkPolyominoCollide()
     if (isBottomCollide) {
       this.closePolyominoAutoFall()
       if (!this.isPending) {
@@ -41,38 +41,30 @@ export class Game {
   }
 
   movePolyominoRight() {
-    if (this.tetris.polyomino) {
-      const isMoveSuccess = this.tetris.movePolyomino(Direction.Right)
-      if (isMoveSuccess) {
-        this.onPolyominCoordinateChange()
-      }
+    const isMoveSuccess = this.tetris.movePolyomino(Direction.Right)
+    if (isMoveSuccess) {
+      this.onPolyominCoordinateChange()
     }
   }
 
   movePolyominoLeft() {
-    if (this.tetris.polyomino) {
-      const isMoveSuccess = this.tetris.movePolyomino(Direction.Left)
-      if (isMoveSuccess) {
-        this.onPolyominCoordinateChange()
-      }
+    const isMoveSuccess = this.tetris.movePolyomino(Direction.Left)
+    if (isMoveSuccess) {
+      this.onPolyominCoordinateChange()
     }
   }
 
   movePolyominoDown() {
-    if (this.tetris.polyomino) {
-      const isMoveSuccess = this.tetris.movePolyomino(Direction.Down)
-      if (isMoveSuccess) {
-        this.onPolyominCoordinateChange()
-      }
+    const isMoveSuccess = this.tetris.movePolyomino(Direction.Down)
+    if (isMoveSuccess) {
+      this.onPolyominCoordinateChange()
     }
   }
 
   changePolyominoShape() {
-    if (this.tetris.polyomino) {
-      const isChangeShapeSuccess = this.tetris.changePolyominoShape()
-      if (isChangeShapeSuccess) {
-        this.onPolyominCoordinateChange()
-      }
+    const isChangeShapeSuccess = this.tetris.changePolyominoShape()
+    if (isChangeShapeSuccess) {
+      this.onPolyominCoordinateChange()
     }
   }
 
@@ -90,7 +82,7 @@ export class Game {
     nextRoundCountDownTimer.start(() => {
       if (this.isPending) {
         this.closeNextRoundTimer()
-        const { bottom: isBottomCollide } = this.tetris.getPolyominoCollideStatus()
+        const { isBottomCollide } = this.tetris.checkPolyominoCollide()
         if (isBottomCollide) {
           this.beforeNextRound().then(() => {
             this.nextRound()
@@ -109,7 +101,7 @@ export class Game {
 
   startNextRoundTimer() {
     nextRoundTimer.start(() => {
-      const { bottom: isBottomCollide } = this.tetris.getPolyominoCollideStatus()
+      const { isBottomCollide } = this.tetris.checkPolyominoCollide()
       if (isBottomCollide) {
         this.beforeNextRound().then(() => {
           this.nextRound()
@@ -127,11 +119,10 @@ export class Game {
 
   beforeNextRound() {
     return new Promise((resolve) => {
-      this.tetris.syncPolyominoInfoToData()
-      this.tetris.resetPolyomino()
-      const filledRowInedxList = this.tetris.getFilledRowInedxList()
-      if (filledRowInedxList.length > 0) {
-        this.score.updateScore(filledRowInedxList.length)
+      this.tetris.setPolyominoInfoToData()
+      const filledRow = this.tetris.checkFilledRow()
+      if (filledRow.length) {
+        this.score.updateScore(filledRow.length)
         this.tetris
           .clearFilledRow()
           .then(() => {
@@ -149,8 +140,7 @@ export class Game {
   }
 
   nextRound() {
-    this.tetris.setPolyomino(this.lineUp.first)
-    this.tetris.centerTopPolyomino()
+    this.tetris.nextPolyomino(this.lineUp.first)
     this.lineUp.next()
     if (this.isGameOver()) {
       console.log('game is over')
@@ -160,16 +150,15 @@ export class Game {
     }
   }
 
-  isGameOver() {
-    const { top: isTopCollide, bottom: isBottomCollide } = this.tetris.getPolyominoCollideStatus()
-    return isTopCollide && isBottomCollide
-  }
-
   start() {
-    this.tetris.setPolyomino(this.lineUp.first)
-    this.tetris.centerTopPolyomino()
+    this.tetris.nextPolyomino(this.lineUp.first)
     this.lineUp.next()
     this.startPolyominoAutoFall()
+  }
+
+  isGameOver() {
+    const { isTopCollide, isBottomCollide } = this.tetris.checkPolyominoCollide()
+    return isTopCollide && isBottomCollide
   }
 
   pause() {

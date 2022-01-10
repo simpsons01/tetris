@@ -1,1 +1,5 @@
 export * from './Tetris'
+export * from './controller'
+export * from './model'
+export * from './polyominoModel'
+export * from './view'

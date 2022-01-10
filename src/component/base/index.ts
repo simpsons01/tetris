@@ -1,17 +1,19 @@
+import { EventEmitter } from './../../util'
 import { IBaseComponent, IBaseCanvas } from './../../types'
 
-export class BaseCanvas implements IBaseCanvas {
+export abstract class BaseCanvas extends EventEmitter implements IBaseCanvas {
   width: number
   height: number
   context: CanvasRenderingContext2D
 
   constructor(config: Pick<IBaseCanvas, 'context' | 'width' | 'height'>) {
+    super()
     this.width = config.width
     this.height = config.height
     this.context = config.context
   }
 
-  public draw() {}
+  abstract draw(...args: Array<any>): void
 }
 
 export class BaseComponent implements IBaseComponent {
@@ -19,22 +21,23 @@ export class BaseComponent implements IBaseComponent {
   y: number
   width: number
   height: number
-  baseCanvasConstructor: IBaseComponent['baseCanvasConstructor']
-  constructor(config: Pick<IBaseComponent, 'x' | 'y' | 'width' | 'height' | 'baseCanvasConstructor'>) {
+  canvasWidth: number
+  canvasHeight: number
+  constructor(config: Pick<IBaseComponent, 'x' | 'y' | 'width' | 'height'>) {
     const { borderWidth, borders } = BaseComponent
     this.x = config.x
     this.y = config.y
     this.width = config.width + borders * borderWidth * 2
     this.height = config.height + borders * borderWidth * 2
-    this.baseCanvasConstructor = config.baseCanvasConstructor
+    this.canvasWidth = config.width
+    this.canvasHeight = config.height
   }
 
   static borders = 3
 
   static borderWidth = 4
 
-  public mount(): IBaseCanvas {
-    const { borderWidth, borders } = BaseComponent
+  public mount(): CanvasRenderingContext2D {
     const canvasContainer = document.querySelector('#canvas-container')
     const frame = document.createElement('div')
     frame.classList.add('frame')
@@ -50,17 +53,13 @@ export class BaseComponent implements IBaseComponent {
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')
     ;[
-      { key: 'height', value: `${this.height - borders * borderWidth * 2}px` },
-      { key: 'width', value: `${this.width - borders * borderWidth * 2}px` }
+      { key: 'height', value: `${this.canvasHeight}px` },
+      { key: 'width', value: `${this.canvasWidth}px` }
     ].forEach(({ key, value }) => {
       canvas.setAttribute(key, value)
     })
     frame.appendChild(canvas)
     canvasContainer.appendChild(frame)
-    return new this.baseCanvasConstructor({
-      width: this.width - borders * borderWidth * 2,
-      height: this.height - borders * borderWidth * 2,
-      context
-    })
+    return context
   }
 }
