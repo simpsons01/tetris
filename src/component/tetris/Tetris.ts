@@ -225,53 +225,80 @@ export class Tetris extends BaseCanvas {
       const nextShape = shape[(shapeIndex + 1) % shape.length]
       const nextCoordinate = this.polyomino.calcCoodinateByShape(nextShape)
       const nextAnchor = nextCoordinate[this.polyomino.coordinateConfig[nextShape].anchorIndex]
-      const collideCoordinate = nextCoordinate.reduce((acc, coordinate) => {
-        const isCoolideWithBorder =
-          coordinate.y < 0 || coordinate.y >= this._column || coordinate.x < 0 || coordinate.x >= this._row
-        const isCollideWithFilledBlocked = (this.findBlock(coordinate) || {}).state === BlockState.Filled
-        if (isCollideWithFilledBlocked || isCoolideWithBorder) acc.push(coordinate)
-        return acc
-      }, [])
-      let leftCollide = false,
-        rightCollide = false,
-        bottomCollide = false,
-        topCollide = false
-      collideCoordinate.forEach((coordinate) => {
-        if (coordinate.x == nextAnchor.x) {
-          leftCollide = true
-          rightCollide = true
-        } else if (coordinate.x > nextAnchor.x) {
-          rightCollide = true
-        } else if (coordinate.x < nextAnchor.x) {
-          leftCollide = true
+      let leftBorderCollide = false,
+        rightBorderCollide = false,
+        bottomBorderCollide = false,
+        topBorderCollide = false,
+        leftBlockCollide = false,
+        rightBlockCollide = false,
+        bottomBlockCollide = false,
+        topBlockCollide = false
+      nextCoordinate.forEach((coordinate) => {
+        if (coordinate.y < 0) {
+          topBorderCollide = true
+        } else if (coordinate.y >= this._column) {
+          bottomBorderCollide = true
+        } else if (coordinate.x < 0) {
+          leftBorderCollide = true
+        } else if (coordinate.x >= this._row) {
+          rightBorderCollide = true
         }
-        if (coordinate.y == nextAnchor.y) {
-          bottomCollide = true
-          topCollide = true
-        } else if (coordinate.y > nextAnchor.y) {
-          bottomCollide = true
-        } else if (coordinate.y < nextAnchor.y) {
-          topCollide = true
+      }, [])
+      nextCoordinate.forEach((coordinate) => {
+        const isCollideWithFilledBlocked = (this.findBlock(coordinate) || {}).state === BlockState.Filled
+        if (isCollideWithFilledBlocked) {
+          if (coordinate.x == nextAnchor.x) {
+            rightBlockCollide = true
+            leftBlockCollide = true
+          } else if (coordinate.x > nextAnchor.x) {
+            rightBlockCollide = true
+          } else if (coordinate.x < nextAnchor.x) {
+            leftBlockCollide = true
+          }
+          if (coordinate.y == nextAnchor.y) {
+            bottomBlockCollide = true
+            topBlockCollide = true
+          } else if (coordinate.y > nextAnchor.y) {
+            bottomBlockCollide = true
+          } else if (coordinate.y < nextAnchor.y) {
+            topBlockCollide = true
+          }
         }
       })
-      if (!topCollide && !leftCollide && !rightCollide && !bottomCollide) {
+      if (
+        !topBorderCollide &&
+        !leftBorderCollide &&
+        !rightBorderCollide &&
+        !bottomBorderCollide &&
+        !topBlockCollide &&
+        !leftBlockCollide &&
+        !rightBlockCollide &&
+        !bottomBlockCollide
+      ) {
         isNextShapeCollide = false
       }
-      if ((leftCollide && rightCollide) || (topCollide && bottomCollide)) {
+      if (
+        (leftBlockCollide && rightBlockCollide && (topBlockCollide || topBorderCollide)) ||
+        (leftBorderCollide && rightBlockCollide && (topBlockCollide || topBorderCollide)) ||
+        (leftBlockCollide && rightBorderCollide && (topBlockCollide || topBorderCollide)) ||
+        (bottomBlockCollide && topBlockCollide) ||
+        (bottomBlockCollide && topBorderCollide) ||
+        (topBorderCollide && bottomBlockCollide)
+      ) {
         isShapeCanChange = false
       }
       if (isShapeCanChange) {
         if (isNextShapeCollide) {
           let _x = 0,
             _y = 0
-          if (topCollide) {
+          if (topBorderCollide || topBlockCollide) {
             _y += 1
-          } else if (bottomCollide) {
+          } else if (bottomBlockCollide || bottomBorderCollide) {
             _y -= 1
           }
-          if (rightCollide) {
+          if (rightBlockCollide || rightBorderCollide) {
             _x -= 1
-          } else if (leftCollide) {
+          } else if (leftBlockCollide || leftBorderCollide) {
             _x += 1
           }
           this.polyomino.updateCoordinate({
@@ -284,8 +311,8 @@ export class Tetris extends BaseCanvas {
           this.draw()
         }
       }
-      return isShapeCanChange
     }
+    return isShapeCanChange
   }
 
   syncPolyominoInfoToData() {
