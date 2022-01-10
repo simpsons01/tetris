@@ -220,7 +220,8 @@ export class Tetris extends BaseCanvas {
       }, [])
       let leftCollide = false,
         rightCollide = false,
-        bottomCollide = false
+        bottomCollide = false,
+        topCollide = false
       collideCoordinate.forEach((coordinate) => {
         if (coordinate.x == nextAnchor.x) {
           leftCollide = true
@@ -230,23 +231,35 @@ export class Tetris extends BaseCanvas {
         } else if (coordinate.x < nextAnchor.x) {
           leftCollide = true
         }
-        if (coordinate.y >= nextAnchor.y) {
+        if (coordinate.y == nextAnchor.y) {
           bottomCollide = true
+          topCollide = true
+        } else if (coordinate.y > nextAnchor.y) {
+          bottomCollide = true
+        } else if (coordinate.y < nextAnchor.y) {
+          topCollide = true
         }
       })
-      if (!leftCollide && !rightCollide && !bottomCollide) {
+      if (!topCollide && !leftCollide && !rightCollide && !bottomCollide) {
         isNextShapeCollide = false
       }
-      if (leftCollide && rightCollide) {
+      if ((leftCollide && rightCollide) || (topCollide && bottomCollide)) {
         isShapeCanChange = false
       }
       if (isShapeCanChange) {
         if (isNextShapeCollide) {
           let _x = 0,
             _y = 0
-          if (bottomCollide) _y -= 1
-          if (rightCollide) _x -= 1
-          if (leftCollide) _x += 1
+          if (topCollide) {
+            _y += 1
+          } else if (bottomCollide) {
+            _y -= 1
+          }
+          if (rightCollide) {
+            _x -= 1
+          } else if (leftCollide) {
+            _x += 1
+          }
           this.polyomino.updateCoordinate({
             x: this.polyomino.anchor.x + _x,
             y: this.polyomino.anchor.y + _y
