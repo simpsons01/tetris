@@ -31,7 +31,7 @@ export class BasePolyomino {
     }
   }
 
-  getCoodinate(shape: PolyominoShape) {
+  calcCoodinateByShape(shape: PolyominoShape) {
     const anchor = this.coordinate[this.coordinateConfig[shape].anchorIndex]
     return this.coordinateConfig[shape].coordinate.map(({ x, y }) => ({
       x: x + anchor.x,
@@ -39,11 +39,15 @@ export class BasePolyomino {
     })) as IPolyominoCoordinate['coordinate']
   }
 
+  calcCoodinateByAnchor(anchor: ICoordinate) {
+    return this.coordinateConfig[this.shape].coordinate.map(({ x, y }) => ({
+      x: x + anchor.x,
+      y: y + anchor.y
+    })) as IPolyominoCoordinate['coordinate']
+  }
+
   updateCoordinate(coordinate: ICoordinate) {
-    this.coordinateConfig[this.shape].coordinate.forEach(({ x, y }, index) => {
-      this.coordinate[index].x = x + coordinate.x
-      this.coordinate[index].y = y + coordinate.y
-    })
+    this.coordinate = this.calcCoodinateByAnchor(coordinate)
     return this.coordinate
   }
 

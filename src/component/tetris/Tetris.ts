@@ -1,4 +1,4 @@
-import { ICoordinate } from './../../types'
+import { ICoordinate, IRender } from './../../types'
 import { BasePolyomino } from '../polyomino'
 import { BlockState, BlcokDistance, Direction, PolyominoShape } from '../../enum'
 import { IBlock, IPolyominoCoordinate, IDirection, IBaseCanvas } from '../../types'
@@ -73,17 +73,26 @@ export class Tetris extends BaseCanvas {
     this.context.fillStyle = '#292929'
     this.context.fillRect(0, 0, this.width, this.height)
     const polyominoBlockInfo = !this.polyomino ? null : this.polyomino.getInfo()
+    const previewBlockInfo = this.getPreviewPolyominoCollide()
     this.data.forEach((row) => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
-        let _strokeColor, _fillColor, polyominoBlock
+        let _strokeColor, _fillColor, polyominoBlock, previewPolyominoBlock
         if (!!polyominoBlockInfo) {
           polyominoBlock = polyominoBlockInfo.find((polyominoBlock) => {
+            return polyominoBlock.x === x && polyominoBlock.y === y
+          })
+        }
+        if (!!previewBlockInfo) {
+          previewPolyominoBlock = previewBlockInfo.find((polyominoBlock) => {
             return polyominoBlock.x === x && polyominoBlock.y === y
           })
         }
         if (!!polyominoBlock) {
           _strokeColor = polyominoBlock.strokeColor
           _fillColor = polyominoBlock.fillColor
+        } else if (!!previewPolyominoBlock) {
+          _strokeColor = previewPolyominoBlock.strokeColor
+          _fillColor = previewPolyominoBlock.fillColor
         } else if (state === BlockState.Filled) {
           _strokeColor = strokeColor
           _fillColor = fillColor
@@ -92,6 +101,11 @@ export class Tetris extends BaseCanvas {
           this.context.strokeStyle = _strokeColor
           this.context.fillStyle = _fillColor
           this.context.save()
+          if (!!previewPolyominoBlock && !polyominoBlock) {
+            this.context.globalAlpha = 0.2
+          } else {
+            this.context.globalAlpha = 1
+          }
           this.context.fillRect(x * BlcokDistance, y * BlcokDistance, BlcokDistance - 2, BlcokDistance - 2)
           this.context.strokeRect(x * BlcokDistance, y * BlcokDistance, BlcokDistance, BlcokDistance)
           this.context.restore()
@@ -113,11 +127,11 @@ export class Tetris extends BaseCanvas {
     return new Promise((resolve) => {
       useInterval(
         () => {
-          filledRowInedxList.forEach((rowIndex) => {
+          filledRowInedxList.forEach((colIndex) => {
             resetOrder[resetOrderIndex].forEach((unFilledIndex) => {
-              this.data[rowIndex][unFilledIndex].state = BlockState.Unfilled
-              this.data[rowIndex][unFilledIndex].strokeColor = ''
-              this.data[rowIndex][unFilledIndex].fillColor = ''
+              this.data[colIndex][unFilledIndex].state = BlockState.Unfilled
+              this.data[colIndex][unFilledIndex].strokeColor = ''
+              this.data[colIndex][unFilledIndex].fillColor = ''
             })
           })
           this.draw()
@@ -169,18 +183,18 @@ export class Tetris extends BaseCanvas {
                 const to = Math.max(...unFilled)
                 const distance = to - from
                 if (notAllFilled.length > 0 && unFilled.length > 0) {
-                  notAllFilled.forEach((rowIndex) => {
-                    this.data[rowIndex].forEach((block) => (block.y = block.y + distance / executeTimes))
+                  notAllFilled.forEach((colIndex) => {
+                    this.data[colIndex].forEach((block) => (block.y = block.y + distance / executeTimes))
                   })
                   if (count == executeTimes) {
-                    notAllFilled.forEach((rowIndex) => {
-                      this.data[rowIndex + distance].forEach((block, blockIndex) => {
-                        block.fillColor = this.data[rowIndex][blockIndex].fillColor
-                        block.strokeColor = this.data[rowIndex][blockIndex].strokeColor
-                        block.state = this.data[rowIndex][blockIndex].state
+                    notAllFilled.forEach((colIndex) => {
+                      this.data[colIndex + distance].forEach((block, blockIndex) => {
+                        block.fillColor = this.data[colIndex][blockIndex].fillColor
+                        block.strokeColor = this.data[colIndex][blockIndex].strokeColor
+                        block.state = this.data[colIndex][blockIndex].state
                       })
-                      this.data[rowIndex].forEach((block) => {
-                        block.y = rowIndex
+                      this.data[colIndex].forEach((block) => {
+                        block.y = colIndex
                         block.fillColor = ''
                         block.strokeColor = ''
                         block.state = BlockState.Unfilled
@@ -209,7 +223,7 @@ export class Tetris extends BaseCanvas {
       const shape = Object.values(PolyominoShape)
       const shapeIndex = shape.indexOf(this.polyomino.shape)
       const nextShape = shape[(shapeIndex + 1) % shape.length]
-      const nextCoordinate = this.polyomino.getCoodinate(nextShape)
+      const nextCoordinate = this.polyomino.calcCoodinateByShape(nextShape)
       const nextAnchor = nextCoordinate[this.polyomino.coordinateConfig[nextShape].anchorIndex]
       const collideCoordinate = nextCoordinate.reduce((acc, coordinate) => {
         const isCoolideWithBorder =
@@ -284,6 +298,41 @@ export class Tetris extends BaseCanvas {
         block.state = BlockState.Filled
       }
     })
+  }
+
+  getPreviewPolyominoCollide() {
+    let info = null
+    if (this.polyomino) {
+      const minY = this.polyomino.coordinate.reduce((acc, block) => {
+        let y = this._column - 1,
+          isColAllFilled = false
+        for (let column = 0; column < this._column; column++) {
+          if ((this.findBlock({ y: column, x: block.x }) || {}).state === BlockState.Filled && y > column) {
+            y = column
+            isColAllFilled = true
+          }
+        }
+        if (isColAllFilled) y -= 1
+        if (acc > y) acc = y
+        return acc
+      }, this._column - 1)
+      info = this.polyomino
+        .calcCoodinateByAnchor({
+          x: this.polyomino.anchor.x,
+          y: (() => {
+            const { coordinateConfig, shape } = this.polyomino
+            const maxY = Math.max(...coordinateConfig[shape].coordinate.map(({ y }) => y))
+            const anchor = coordinateConfig[shape].coordinate[coordinateConfig[shape].anchorIndex]
+            const y = minY - (maxY - anchor.y)
+            return y
+          })()
+        })
+        .map((coordinate) => {
+          const { strokeColor, fillColor } = this.polyomino
+          return { ...coordinate, strokeColor, fillColor }
+        })
+    }
+    return info
   }
 
   getPolyominoCollideStatus(polyominoCoordinate?: IPolyominoCoordinate['coordinate']): IDirection<boolean> {
