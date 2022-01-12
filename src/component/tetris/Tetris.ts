@@ -281,9 +281,18 @@ export class Tetris extends BaseCanvas {
         (leftBlockCollide && rightBlockCollide && (topBlockCollide || topBorderCollide)) ||
         (leftBorderCollide && rightBlockCollide && (topBlockCollide || topBorderCollide)) ||
         (leftBlockCollide && rightBorderCollide && (topBlockCollide || topBorderCollide)) ||
-        (bottomBlockCollide && topBlockCollide) ||
-        (bottomBlockCollide && topBorderCollide) ||
-        (topBorderCollide && bottomBlockCollide)
+        (bottomBlockCollide &&
+          topBlockCollide &&
+          (leftBlockCollide || leftBorderCollide) &&
+          (rightBorderCollide || rightBlockCollide)) ||
+        (bottomBlockCollide &&
+          topBorderCollide &&
+          (leftBlockCollide || leftBorderCollide) &&
+          (rightBorderCollide || rightBlockCollide)) ||
+        (topBorderCollide &&
+          bottomBlockCollide &&
+          (leftBlockCollide || leftBorderCollide) &&
+          (rightBorderCollide || rightBlockCollide))
       ) {
         isShapeCanChange = false
       }
@@ -330,11 +339,12 @@ export class Tetris extends BaseCanvas {
   getPreviewPolyominoCollide() {
     let info = null
     if (this.polyomino) {
-      const minY = this.polyomino.coordinate.reduce((acc, block) => {
+      const minY = this.polyomino.coordinate.reduce((acc, coordinate) => {
         let y = this._column - 1,
           isColAllFilled = false
-        for (let column = 0; column < this._column; column++) {
-          if ((this.findBlock({ y: column, x: block.x }) || {}).state === BlockState.Filled && y > column) {
+        for (let column = 0; column < coordinate.y; column++) {
+          console.log(coordinate.y)
+          if ((this.findBlock({ y: column, x: coordinate.x }) || {}).state === BlockState.Filled && y > column) {
             y = column
             isColAllFilled = true
           }
