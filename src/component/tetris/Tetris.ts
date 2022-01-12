@@ -344,7 +344,7 @@ export class Tetris extends BaseCanvas {
       this.polyomino.coordinate.forEach((coordinate, index) => {
         let y = this._column - 1,
           isColNotAllFilled = true
-        for (let column = coordinate.y; column < this._column; column++) {
+        for (let column = this.polyomino.range.maxY; column < this._column; column++) {
           if ((this.findBlock({ y: column, x: coordinate.x }) || {}).state === BlockState.Filled && y > column) {
             y = column
             isColNotAllFilled = false
@@ -361,8 +361,9 @@ export class Tetris extends BaseCanvas {
           x: this.polyomino.anchor.x,
           y: (() => {
             const { coordinateConfig, shape } = this.polyomino
-            const anchor = coordinateConfig[shape].coordinate[coordinateConfig[shape].anchorIndex]
-            const y = minY - (coordinateConfig[shape].coordinate[minYIndex].y - anchor.y)
+            const configAnchorY = coordinateConfig[shape].coordinate[coordinateConfig[shape].anchorIndex].y
+            const configMinY = coordinateConfig[shape].coordinate[minYIndex].y
+            const y = minY - (configMinY - configAnchorY)
             return y
           })()
         })
