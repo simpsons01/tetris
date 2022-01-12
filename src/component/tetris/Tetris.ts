@@ -339,28 +339,30 @@ export class Tetris extends BaseCanvas {
   getPreviewPolyominoCollide() {
     let info = null
     if (this.polyomino) {
-      const minY = this.polyomino.coordinate.reduce((acc, coordinate) => {
+      let minY = this._column,
+        minYIndex = 0
+      this.polyomino.coordinate.forEach((coordinate, index) => {
         let y = this._column - 1,
-          isColAllFilled = false
-        for (let column = 0; column < coordinate.y; column++) {
-          console.log(coordinate.y)
+          isColNotAllFilled = true
+        for (let column = coordinate.y; column < this._column; column++) {
           if ((this.findBlock({ y: column, x: coordinate.x }) || {}).state === BlockState.Filled && y > column) {
             y = column
-            isColAllFilled = true
+            isColNotAllFilled = false
           }
         }
-        if (isColAllFilled) y -= 1
-        if (acc > y) acc = y
-        return acc
-      }, this._column - 1)
+        if (!isColNotAllFilled) y -= 1
+        if (minY > y) {
+          minY = y
+          minYIndex = index
+        }
+      })
       info = this.polyomino
         .calcCoodinateByAnchor({
           x: this.polyomino.anchor.x,
           y: (() => {
             const { coordinateConfig, shape } = this.polyomino
-            const maxY = Math.max(...coordinateConfig[shape].coordinate.map(({ y }) => y))
             const anchor = coordinateConfig[shape].coordinate[coordinateConfig[shape].anchorIndex]
-            const y = minY - (maxY - anchor.y)
+            const y = minY - (coordinateConfig[shape].coordinate[minYIndex].y - anchor.y)
             return y
           })()
         })
