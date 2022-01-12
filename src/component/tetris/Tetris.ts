@@ -217,6 +217,7 @@ export class Tetris extends BaseCanvas {
   }
 
   changePolyominoShape() {
+    // 需要想更好解決換方塊的計算的方式
     let isNextShapeCollide = true,
       isShapeCanChange = true
     if (this.polyomino) {
