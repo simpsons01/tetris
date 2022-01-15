@@ -65,14 +65,6 @@ export class BasePolyomino {
     return this.coordinate
   }
 
-  resetCoordinate() {
-    this.changeShape(PolyominoShape.First)
-    this.coordinateConfig[PolyominoShape.First].coordinate.forEach(({ x, y }, index) => {
-      this.coordinate[index].x = x
-      this.coordinate[index].y = y
-    })
-  }
-
   changeShape(shape: PolyominoShape) {
     this.shape = shape
     const nextAnchorCoordinate = this.anchor

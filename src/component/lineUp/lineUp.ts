@@ -61,37 +61,35 @@ export class LineUp extends BaseCanvas {
   }
 
   draw() {
-    const row = 4
-    const column = 4
-    const horizontalMargin = 30
-    const verticalMargin = 10
-    const offsetX = (() => {})()
     this.context.clearRect(0, 0, this.width, this.height)
     this.context.fillStyle = '#292929'
     this.context.fillRect(0, 0, this.width, this.height)
     this.list.forEach(({ polyomino }, index) => {
       const {
-        range: { minX, maxX, minY, maxY }
+        range: { minX, maxX, minY, maxY },
+        anchor
       } = polyomino
-      polyomino.updateCoordinate({
-        x: Math.ceil((row - (maxX - minX + 1)) / 2) - minX,
-        y: Math.ceil((column - (maxY - minY + 1)) / 2) - minY
-      })
-      const polyominoInfo = polyomino.info
-      polyomino.resetCoordinate()
+      const width = (maxX - minX + 1) * BlcokDistance
+      const height = (maxY - minY + 1) * BlcokDistance
+      const averageHeight = this.height / LineUp.lineLimit
+      const offsetX = (anchor.x - minX) * BlcokDistance
+      const offsetY = (anchor.y - minY) * BlcokDistance
+      const x = ((this.width - width) / 2 + offsetX) / BlcokDistance
+      const y = ((averageHeight - height) / 2 + offsetY) / BlcokDistance
+      const polyominoInfo = polyomino.calcInfo(polyomino.calcCoordinateByAnchorandShape({ x, y }, polyomino.shape))
       polyominoInfo.forEach(({ x, y, strokeColor, fillColor }) => {
         this.context.strokeStyle = strokeColor
         this.context.fillStyle = fillColor
         this.context.save()
         this.context.fillRect(
           x * BlcokDistance,
-          y * BlcokDistance + verticalMargin + index * 300,
+          y * BlcokDistance + index * averageHeight,
           BlcokDistance - 2,
           BlcokDistance - 2
         )
         this.context.strokeRect(
           x * BlcokDistance,
-          y * BlcokDistance + verticalMargin + index * 300,
+          y * BlcokDistance + index * averageHeight,
           BlcokDistance,
           BlcokDistance
         )
