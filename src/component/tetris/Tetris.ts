@@ -218,16 +218,15 @@ export class Tetris extends BaseCanvas {
 
   changePolyominoShape() {
     let isSuccess = false
-    // 需要想更好解決換方塊的計算的方式
     if (this.polyomino) {
       const shapes = Object.values(PolyominoShape)
-      const { shape, coordinateConfig } = this.polyomino
+      const { shape, anchor } = this.polyomino
       const shapeIndex = shapes.indexOf(shape)
       const nextShape = shapes[(shapeIndex + 1) % shapes.length]
       let isNextShapeCollide = true,
         isShapeCanChange = false,
         changeCount = 0,
-        nextCoordinate = this.polyomino.calcCoordinateByAnchorandShape(this.polyomino.anchor, nextShape),
+        nextCoordinate = this.polyomino.calcCoordinateByAnchorandShape(anchor, nextShape),
         nextAnchor = this.polyomino.calcAnchorByCoordinateAndShape(nextCoordinate, nextShape)
       while (changeCount < 10 && isNextShapeCollide) {
         let leftCollide = false,
@@ -270,7 +269,7 @@ export class Tetris extends BaseCanvas {
         if (!leftCollide && !rightCollide && !topCollide && !bottomCollide) {
           isNextShapeCollide = false
         }
-        if ((leftCollide && rightCollide) || (topCollide && bottomCollide)) {
+        if (leftCollide && rightCollide && topCollide) {
           isShapeCanChange = false
         } else {
           isShapeCanChange = true
@@ -294,15 +293,9 @@ export class Tetris extends BaseCanvas {
           }
           nextCoordinate = this.polyomino.calcCoordinateByAnchorandShape(nextAnchor, nextShape)
         }
-        console.table({
-          leftCoolide: leftCollide,
-          rightCoolide: rightCollide,
-          topCoolide: topCollide,
-          bottomCoolide: bottomCollide
-        })
         changeCount += 1
       }
-      if (isShapeCanChange) {
+      if (!isNextShapeCollide && isShapeCanChange) {
         this.polyomino.changeShape(nextShape)
         this.polyomino.updateCoordinate(nextAnchor)
         this.draw()
