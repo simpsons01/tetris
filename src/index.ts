@@ -52,12 +52,14 @@ import { LineUp } from './component/lineUp/lineUp'
   window.addEventListener('keydown', function (e) {
     if (e.keyCode === 37) {
       game.movePolyominoLeft()
-    }
-    if (e.keyCode === 39) {
+    } else if (e.keyCode === 39) {
       game.movePolyominoRight()
     } else if (e.keyCode === 40) {
       game.closePolyominoAutoFall()
       game.movePolyominoDown()
+    } else if (e.keyCode === 32) {
+      game.closePolyominoAutoFall()
+      game.movePolyominoQuick()
     }
   })
   window.addEventListener('keyup', function (e) {

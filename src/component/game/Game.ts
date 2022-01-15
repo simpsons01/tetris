@@ -67,6 +67,13 @@ export class Game {
     }
   }
 
+  movePolyominoQuick() {
+    if (this.tetris.polyomino) {
+      this.tetris.placePolyominoToPreview()
+      this.onPolyominCoordinateChange()
+    }
+  }
+
   changePolyominoShape() {
     if (this.tetris.polyomino) {
       const isChangeShapeSuccess = this.tetris.changePolyominoShape()
@@ -150,7 +157,7 @@ export class Game {
 
   nextRound() {
     this.tetris.setPolyomino(this.lineUp.first)
-    this.tetris.centerTopPolyomino()
+    this.tetris.placePolyominoToCenterTop()
     this.lineUp.next()
     if (this.isGameOver()) {
       console.log('game is over')
@@ -167,7 +174,7 @@ export class Game {
 
   start() {
     this.tetris.setPolyomino(this.lineUp.first)
-    this.tetris.centerTopPolyomino()
+    this.tetris.placePolyominoToCenterTop()
     this.lineUp.next()
     this.startPolyominoAutoFall()
   }

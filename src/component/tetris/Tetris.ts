@@ -46,7 +46,7 @@ export class Tetris extends BaseCanvas {
     }, [])
   }
 
-  centerTopPolyomino() {
+  placePolyominoToCenterTop() {
     const {
       range: { minX, maxX, minY },
       anchor: { y: anchorY }
@@ -55,6 +55,13 @@ export class Tetris extends BaseCanvas {
       x: Math.ceil((this._row - (maxX - minX + 1)) / 2) - minX,
       y: anchorY - minY
     })
+    this.draw()
+  }
+
+  placePolyominoToPreview() {
+    const previewCoordinate = this.getPolyominoPreviewCollideCoordinate()
+    const previewAnchor = this.polyomino.calcAnchorByCoordinateAndShape(previewCoordinate, this.polyomino.shape)
+    this.polyomino.updateCoordinate(previewAnchor)
     this.draw()
   }
 
@@ -73,7 +80,8 @@ export class Tetris extends BaseCanvas {
     this.context.fillStyle = '#292929'
     this.context.fillRect(0, 0, this.width, this.height)
     const polyominoBlockInfo = this.polyomino ? this.polyomino.info : null
-    const previewBlockInfo = this.getPolyominoPreviewCollideCoordinate()
+    const previewBlockCoordinate = this.getPolyominoPreviewCollideCoordinate()
+    const previewBlockInfo = previewBlockCoordinate ? this.polyomino.calcInfo(previewBlockCoordinate) : null
     this.data.forEach((row) => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
         let _strokeColor, _fillColor, polyominoBlock, previewPolyominoBlock
@@ -317,9 +325,8 @@ export class Tetris extends BaseCanvas {
   }
 
   getPolyominoPreviewCollideCoordinate() {
-    let info = null
+    let previewCoordinate = null
     if (this.polyomino) {
-      let previewCoordinate = null
       for (let column = 0; column < this._column - this.polyomino.anchor.y; column++) {
         previewCoordinate = this.polyomino.calcCoordinateByAnchorandShape(
           {
@@ -333,9 +340,8 @@ export class Tetris extends BaseCanvas {
           break
         }
       }
-      info = this.polyomino.calcInfo(previewCoordinate)
     }
-    return info
+    return previewCoordinate
   }
 
   getPolyominoCollideStatus(polyominoCoordinate?: IPolyominoCoordinate['coordinate']): IDirection<boolean> {
