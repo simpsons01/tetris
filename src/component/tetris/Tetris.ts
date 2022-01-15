@@ -72,8 +72,8 @@ export class Tetris extends BaseCanvas {
     this.context.clearRect(0, 0, this.width, this.height)
     this.context.fillStyle = '#292929'
     this.context.fillRect(0, 0, this.width, this.height)
-    const polyominoBlockInfo = !this.polyomino ? null : this.polyomino.getInfo()
-    const previewBlockInfo = this.getPreviewPolyominoCollide()
+    const polyominoBlockInfo = this.polyomino ? this.polyomino.info : null
+    const previewBlockInfo = this.getPolyominoPreviewCollideCoordinate()
     this.data.forEach((row) => {
       row.forEach(({ x, y, strokeColor, fillColor, state }) => {
         let _strokeColor, _fillColor, polyominoBlock, previewPolyominoBlock
@@ -102,7 +102,7 @@ export class Tetris extends BaseCanvas {
           this.context.fillStyle = _fillColor
           this.context.save()
           if (!!previewPolyominoBlock && !polyominoBlock) {
-            this.context.globalAlpha = 0.2
+            this.context.globalAlpha = 0.3
           } else {
             this.context.globalAlpha = 1
           }
@@ -217,117 +217,103 @@ export class Tetris extends BaseCanvas {
   }
 
   changePolyominoShape() {
+    let isSuccess = false
     // 需要想更好解決換方塊的計算的方式
-    let isNextShapeCollide = true,
-      isShapeCanChange = true
     if (this.polyomino) {
-      const shape = Object.values(PolyominoShape)
-      const shapeIndex = shape.indexOf(this.polyomino.shape)
-      const nextShape = shape[(shapeIndex + 1) % shape.length]
-      const nextCoordinate = this.polyomino.calcCoodinateByShape(nextShape)
-      const nextAnchor = nextCoordinate[this.polyomino.coordinateConfig[nextShape].anchorIndex]
-      let leftBorderCollide = false,
-        rightBorderCollide = false,
-        bottomBorderCollide = false,
-        topBorderCollide = false,
-        leftBlockCollide = false,
-        rightBlockCollide = false,
-        bottomBlockCollide = false,
-        topBlockCollide = false
-      nextCoordinate.forEach((coordinate) => {
-        if (coordinate.y < 0) {
-          topBorderCollide = true
-        } else if (coordinate.y >= this._column) {
-          bottomBorderCollide = true
-        } else if (coordinate.x < 0) {
-          leftBorderCollide = true
-        } else if (coordinate.x >= this._row) {
-          rightBorderCollide = true
-        }
-      }, [])
-      nextCoordinate.forEach((coordinate) => {
-        const isCollideWithFilledBlocked = (this.findBlock(coordinate) || {}).state === BlockState.Filled
-        if (isCollideWithFilledBlocked) {
-          if (coordinate.x == nextAnchor.x) {
-            rightBlockCollide = true
-            leftBlockCollide = true
-          } else if (coordinate.x > nextAnchor.x) {
-            rightBlockCollide = true
-          } else if (coordinate.x < nextAnchor.x) {
-            leftBlockCollide = true
+      const shapes = Object.values(PolyominoShape)
+      const { shape, coordinateConfig } = this.polyomino
+      const shapeIndex = shapes.indexOf(shape)
+      const nextShape = shapes[(shapeIndex + 1) % shapes.length]
+      let isNextShapeCollide = true,
+        isShapeCanChange = false,
+        changeCount = 0,
+        nextCoordinate = this.polyomino.calcCoordinateByAnchorandShape(this.polyomino.anchor, nextShape),
+        nextAnchor = this.polyomino.calcAnchorByCoordinateAndShape(nextCoordinate, nextShape)
+      while (changeCount < 10 && isNextShapeCollide) {
+        let leftCollide = false,
+          rightCollide = false,
+          bottomCollide = false,
+          topCollide = false
+        nextCoordinate.forEach((coordinate) => {
+          const isCollideWithFilledBlocked = (this.findBlock(coordinate) || {}).state === BlockState.Filled
+          const isCollideWithHorizontalBorder = coordinate.x < 0 || coordinate.x >= this._row
+          const isCollidWithVerticalBorder = coordinate.y < 0 || coordinate.y >= this._column
+          if (isCollideWithFilledBlocked || isCollideWithHorizontalBorder) {
+            if (coordinate.x > nextAnchor.x) {
+              rightCollide = true
+            } else if (coordinate.x < nextAnchor.x) {
+              leftCollide = true
+            } else if (coordinate.x === nextAnchor.x) {
+              const { maxX, minX } = this.polyomino.calcRangeByCoordinate(nextCoordinate)
+              if (coordinate.x === maxX) {
+                rightCollide = true
+              } else if (coordinate.y === minX) {
+                leftCollide = true
+              }
+            }
           }
-          if (coordinate.y == nextAnchor.y) {
-            bottomBlockCollide = true
-            topBlockCollide = true
-          } else if (coordinate.y > nextAnchor.y) {
-            bottomBlockCollide = true
-          } else if (coordinate.y < nextAnchor.y) {
-            topBlockCollide = true
+          if (isCollideWithFilledBlocked || isCollidWithVerticalBorder) {
+            if (coordinate.y > nextAnchor.y) {
+              bottomCollide = true
+            } else if (coordinate.y < nextAnchor.y) {
+              topCollide = true
+            } else if (coordinate.y === nextAnchor.y) {
+              const { maxY, minY } = this.polyomino.calcRangeByCoordinate(nextCoordinate)
+              if (coordinate.y === maxY) {
+                bottomCollide = true
+              } else if (coordinate.y === minY) {
+                topCollide = true
+              }
+            }
           }
+        })
+        if (!leftCollide && !rightCollide && !topCollide && !bottomCollide) {
+          isNextShapeCollide = false
         }
-      })
-      if (
-        !topBorderCollide &&
-        !leftBorderCollide &&
-        !rightBorderCollide &&
-        !bottomBorderCollide &&
-        !topBlockCollide &&
-        !leftBlockCollide &&
-        !rightBlockCollide &&
-        !bottomBlockCollide
-      ) {
-        isNextShapeCollide = false
-      }
-      if (
-        (leftBlockCollide && rightBlockCollide && (topBlockCollide || topBorderCollide)) ||
-        (leftBorderCollide && rightBlockCollide && (topBlockCollide || topBorderCollide)) ||
-        (leftBlockCollide && rightBorderCollide && (topBlockCollide || topBorderCollide)) ||
-        (bottomBlockCollide &&
-          topBlockCollide &&
-          (leftBlockCollide || leftBorderCollide) &&
-          (rightBorderCollide || rightBlockCollide)) ||
-        (bottomBlockCollide &&
-          topBorderCollide &&
-          (leftBlockCollide || leftBorderCollide) &&
-          (rightBorderCollide || rightBlockCollide)) ||
-        (topBorderCollide &&
-          bottomBlockCollide &&
-          (leftBlockCollide || leftBorderCollide) &&
-          (rightBorderCollide || rightBlockCollide))
-      ) {
-        isShapeCanChange = false
-      }
-      if (isShapeCanChange) {
-        if (isNextShapeCollide) {
+        if ((leftCollide && rightCollide) || (topCollide && bottomCollide)) {
+          isShapeCanChange = false
+        } else {
+          isShapeCanChange = true
+        }
+        if (isNextShapeCollide && isShapeCanChange) {
           let _x = 0,
             _y = 0
-          if (topBorderCollide || topBlockCollide) {
+          if (topCollide) {
             _y += 1
-          } else if (bottomBlockCollide || bottomBorderCollide) {
+          } else if (bottomCollide) {
             _y -= 1
           }
-          if (rightBlockCollide || rightBorderCollide) {
+          if (rightCollide) {
             _x -= 1
-          } else if (leftBlockCollide || leftBorderCollide) {
+          } else if (leftCollide) {
             _x += 1
           }
-          this.polyomino.updateCoordinate({
-            x: this.polyomino.anchor.x + _x,
-            y: this.polyomino.anchor.y + _y
-          })
-          return this.changePolyominoShape.call(this)
-        } else {
-          this.polyomino.changeShape(nextShape)
-          this.draw()
+          nextAnchor = {
+            x: nextAnchor.x + _x,
+            y: nextAnchor.y + _y
+          }
+          nextCoordinate = this.polyomino.calcCoordinateByAnchorandShape(nextAnchor, nextShape)
         }
+        console.table({
+          leftCoolide: leftCollide,
+          rightCoolide: rightCollide,
+          topCoolide: topCollide,
+          bottomCoolide: bottomCollide
+        })
+        changeCount += 1
+      }
+      if (isShapeCanChange) {
+        this.polyomino.changeShape(nextShape)
+        this.polyomino.updateCoordinate(nextAnchor)
+        this.draw()
+        isSuccess = true
       }
     }
-    return isShapeCanChange
+    return isSuccess
   }
 
   syncPolyominoInfoToData() {
-    const polyominoBlockInfo = this.polyomino.getInfo()
-    polyominoBlockInfo.forEach(({ x, y, strokeColor, fillColor }) => {
+    this.polyomino.info.forEach(({ x, y, strokeColor, fillColor }) => {
       const block = this.findBlock({ x, y })
       if (block) {
         block.strokeColor = strokeColor
@@ -337,30 +323,24 @@ export class Tetris extends BaseCanvas {
     })
   }
 
-  getPreviewPolyominoCollide() {
+  getPolyominoPreviewCollideCoordinate() {
     let info = null
     if (this.polyomino) {
-      let collideY = 0
+      let previewCoordinate = null
       for (let column = 0; column < this._column - this.polyomino.anchor.y; column++) {
-        const calcCoodinate = this.polyomino.calcCoodinateByAnchor({
-          x: this.polyomino.anchor.x,
-          y: this.polyomino.anchor.y + column
-        })
-        const { bottom: isBottomCollide } = this.getPolyominoCollideStatus(calcCoodinate)
+        previewCoordinate = this.polyomino.calcCoordinateByAnchorandShape(
+          {
+            x: this.polyomino.anchor.x,
+            y: this.polyomino.anchor.y + column
+          },
+          this.polyomino.shape
+        )
+        const { bottom: isBottomCollide } = this.getPolyominoCollideStatus(previewCoordinate)
         if (isBottomCollide) {
-          collideY = column
           break
         }
       }
-      info = this.polyomino
-        .calcCoodinateByAnchor({
-          x: this.polyomino.anchor.x,
-          y: this.polyomino.anchor.y + collideY
-        })
-        .map((coordinate) => {
-          const { strokeColor, fillColor } = this.polyomino
-          return { ...coordinate, strokeColor, fillColor }
-        })
+      info = this.polyomino.calcInfo(previewCoordinate)
     }
     return info
   }

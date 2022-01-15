@@ -47,6 +47,7 @@ import { LineUp } from './component/lineUp/lineUp'
   setCanvasContainerSize()
 
   game.start()
+  // /game.closePolyominoAutoFall()
 
   window.addEventListener('keydown', function (e) {
     if (e.keyCode === 37) {

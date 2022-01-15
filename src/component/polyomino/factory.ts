@@ -20,7 +20,7 @@ export class PolyominoFactory {
       T: TPolyomino,
       Z: ZPolyomino
     }
-    const polyomino: IPolyominoConstuctor = map[type] ? map[type] : IPolyomino
-    return new polyomino()
+    const Polyomino: IPolyominoConstuctor = map[type] ? map[type] : IPolyomino
+    return new Polyomino()
   }
 }

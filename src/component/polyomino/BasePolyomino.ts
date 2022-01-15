@@ -17,12 +17,41 @@ export class BasePolyomino {
   }
 
   get anchor() {
-    return this.coordinate[this.coordinateConfig[this.shape].anchorIndex]
+    return this.calcAnchorByCoordinateAndShape(this.coordinate, this.shape)
   }
 
   get range() {
-    const _x = this.coordinate.map(({ x }) => x)
-    const _y = this.coordinate.map(({ y }) => y)
+    return this.calcRangeByCoordinate(this.coordinate)
+  }
+
+  get info() {
+    return this.calcInfo(this.coordinate)
+  }
+
+  calcCoordinateByAnchorandShape(anchor: ICoordinate, shape: PolyominoShape) {
+    return this.coordinateConfig[shape].coordinate.map(({ x: _x, y: _y }) => {
+      return {
+        x: _x + anchor.x,
+        y: _y + anchor.y
+      }
+    }) as IPolyominoCoordinate['coordinate']
+  }
+
+  calcAnchorByCoordinateAndShape(coordinate: IPolyominoCoordinate['coordinate'], shape: PolyominoShape) {
+    return coordinate[this.coordinateConfig[shape].anchorIndex]
+  }
+
+  calcInfo(coordinate: IPolyominoCoordinate['coordinate']) {
+    return coordinate.map((coordinate) => ({
+      ...coordinate,
+      strokeColor: this.strokeColor,
+      fillColor: this.fillColor
+    }))
+  }
+
+  calcRangeByCoordinate(coordinate: IPolyominoCoordinate['coordinate']) {
+    const _x = coordinate.map(({ x }) => x)
+    const _y = coordinate.map(({ y }) => y)
     return {
       maxX: Math.max(..._x),
       minX: Math.min(..._x),
@@ -31,23 +60,8 @@ export class BasePolyomino {
     }
   }
 
-  calcCoodinateByShape(shape: PolyominoShape) {
-    const anchor = this.coordinate[this.coordinateConfig[shape].anchorIndex]
-    return this.coordinateConfig[shape].coordinate.map(({ x, y }) => ({
-      x: x + anchor.x,
-      y: y + anchor.y
-    })) as IPolyominoCoordinate['coordinate']
-  }
-
-  calcCoodinateByAnchor(anchor: ICoordinate) {
-    return this.coordinateConfig[this.shape].coordinate.map(({ x, y }) => ({
-      x: x + anchor.x,
-      y: y + anchor.y
-    })) as IPolyominoCoordinate['coordinate']
-  }
-
   updateCoordinate(coordinate: ICoordinate) {
-    this.coordinate = this.calcCoodinateByAnchor(coordinate)
+    this.coordinate = this.calcCoordinateByAnchorandShape(coordinate, this.shape)
     return this.coordinate
   }
 
@@ -64,13 +78,5 @@ export class BasePolyomino {
     const nextAnchorCoordinate = this.anchor
     this.updateCoordinate(nextAnchorCoordinate)
     return this.coordinate
-  }
-
-  getInfo() {
-    return this.coordinate.map((coordinate) => ({
-      ...coordinate,
-      strokeColor: this.strokeColor,
-      fillColor: this.fillColor
-    }))
   }
 }

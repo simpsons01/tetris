@@ -77,7 +77,7 @@ export class LineUp extends BaseCanvas {
         x: Math.ceil((row - (maxX - minX + 1)) / 2) - minX,
         y: Math.ceil((column - (maxY - minY + 1)) / 2) - minY
       })
-      const polyominoInfo = polyomino.getInfo()
+      const polyominoInfo = polyomino.info
       polyomino.resetCoordinate()
       polyominoInfo.forEach(({ x, y, strokeColor, fillColor }) => {
         this.context.strokeStyle = strokeColor
