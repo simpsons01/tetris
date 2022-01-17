@@ -34,6 +34,8 @@ import { LineUp } from './component/lineUp/lineUp'
     return canvas
   })
 
+  //
+
   const game = new Game(tetris as Tetris, score as Score, lineUp as LineUp)
 
   const setCanvasContainerSize = () => {
