@@ -21,7 +21,7 @@ export enum Direction {
   Down = 'down'
 }
 
-export const BlcokDistance = 60
+export const BlcokDistance = 30
 
 export enum Canvas {
   Width = 600,

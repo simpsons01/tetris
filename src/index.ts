@@ -7,24 +7,24 @@ import { LineUp } from './component/lineUp/lineUp'
   const scoreFrame = new BaseComponent({
     x: 0,
     y: 0,
-    width: 300,
-    height: 272,
+    width: 150,
+    height: 136,
     baseCanvasConstructor: Score
   })
 
   const tetrisFrame = new BaseComponent({
-    x: scoreFrame.width + 4,
+    x: scoreFrame.width + 2,
     y: 0,
-    width: 600,
-    height: 1200,
+    width: 300,
+    height: 600,
     baseCanvasConstructor: Tetris
   })
 
   const lineUpFrame = new BaseComponent({
     x: 0,
-    y: scoreFrame.height + 4,
-    width: 300,
-    height: 900,
+    y: scoreFrame.height + 2,
+    width: 150,
+    height: 440,
     baseCanvasConstructor: LineUp
   })
 
