@@ -233,10 +233,10 @@ export class Tetris extends BaseCanvas {
       const nextShape = shapes[(shapeIndex + 1) % shapes.length]
       let isNextShapeCollide = true,
         isShapeCanChange = false,
-        changeCount = 0,
+        retry = 0,
         nextCoordinate = this.polyomino.calcCoordinateByAnchorandShape(anchor, nextShape),
         nextAnchor = this.polyomino.calcAnchorByCoordinateAndShape(nextCoordinate, nextShape)
-      while (changeCount < 10 && isNextShapeCollide) {
+      while (retry < 10 && isNextShapeCollide) {
         let leftCollide = false,
           rightCollide = false,
           bottomCollide = false,
@@ -301,7 +301,7 @@ export class Tetris extends BaseCanvas {
           }
           nextCoordinate = this.polyomino.calcCoordinateByAnchorandShape(nextAnchor, nextShape)
         }
-        changeCount += 1
+        retry += 1
       }
       if (!isNextShapeCollide && isShapeCanChange) {
         this.polyomino.changeShape(nextShape)
